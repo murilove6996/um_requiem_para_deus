@@ -1,0 +1,2115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Um Réquiem Para Deus</title>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ═══════════════════════════════════════════════════════════════════
+   VARIABLES
+═══════════════════════════════════════════════════════════════════ */
+:root{
+  --bg:          #05040a;
+  --bg2:         #09080f;
+  --surface:     #0d0b15;
+  --border:      rgba(155,115,65,0.14);
+  --border-hi:   rgba(175,135,75,0.40);
+  --fg:          #c9b692;
+  --fg-dim:      rgba(201,182,146,0.54);
+  --fg-muted:    rgba(201,182,146,0.30);
+  --red:         #781212;
+  --red-hi:      #9e1a1a;
+  --red-glow:    rgba(120,18,18,0.30);
+  --gold:        #a87206;
+  --gold-hi:     #cc8c08;
+  --fervor:      #263e5e;
+  --fervor-hi:   #345478;
+  --bone:        #d6caa8;
+  --trans:       all 0.28s cubic-bezier(.4,0,.2,1);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   BASE
+═══════════════════════════════════════════════════════════════════ */
+html{
+  height:100%;
+  overflow-x:hidden;
+  scroll-behavior:smooth;
+}
+body{
+  min-height:100vh;
+  background:var(--bg);
+  color:var(--fg);
+  font-family:'Crimson Text',serif;
+  font-size:18px;
+  line-height:1.75;
+  overflow-x:hidden;
+  width:100%;
+  max-width:100vw;
+  -webkit-font-smoothing:antialiased;
+  /* Word wrap — never cut words, always wrap whole words */
+  word-break:normal;
+  overflow-wrap:break-word;
+  hyphens:none;
+  -webkit-hyphens:none;
+  -moz-hyphens:none;
+}
+/* Atmospheric background layers */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 100% 55% at 50% -5%,  rgba(120,18,18,0.08) 0%, transparent 62%),
+    radial-gradient(ellipse 55%  40% at 10% 100%, rgba(80,22,50,0.06)  0%, transparent 55%),
+    radial-gradient(ellipse 55%  40% at 90% 100%, rgba(38,62,94,0.05)  0%, transparent 55%);
+}
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+::selection{background:rgba(120,18,18,0.4)}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:var(--border-hi)}
+button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+
+/* Disable text selection everywhere */
+*{
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select:none;
+  user-select:none;
+  -webkit-tap-highlight-color:rgba(0,0,0,0);
+  -webkit-touch-callout:none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   LAYOUT CONTAINERS
+═══════════════════════════════════════════════════════════════════ */
+#app{
+  position:relative;z-index:1;
+  overflow-x:hidden;width:100%;max-width:100vw;
+}
+.screen{
+  min-height:100dvh;display:none;
+  flex-direction:column;align-items:center;justify-content:center;
+  padding:2rem;opacity:0;
+  overflow-x:hidden;width:100%;max-width:100vw;box-sizing:border-box;
+}
+.screen.active{
+  display:flex;
+  animation:screenIn 0.65s cubic-bezier(.4,0,.2,1) forwards;
+}
+@keyframes screenIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══════════════════════════════════════════════════════════════════
+   WORD REVEAL
+═══════════════════════════════════════════════════════════════════ */
+.rw{
+  opacity:0;filter:blur(6px);
+  display:inline;
+  transition:opacity 0.52s ease, filter 0.48s ease;
+  word-break:normal;
+  overflow-wrap:break-word;
+  hyphens:none;-webkit-hyphens:none;
+}
+.rw.shown{opacity:1;filter:blur(0)}
+
+/* ═══════════════════════════════════════════════════════════════════
+   OPENING — INTRO LORE STAGE
+═══════════════════════════════════════════════════════════════════ */
+#opening{gap:0;text-align:center;position:relative;padding:1.5rem}
+
+.intro-stage{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100dvh;width:100%;padding:2.5rem 1.5rem;
+}
+.intro-lore-content{
+  max-width:400px;width:100%;
+  text-align:center;
+  display:flex;flex-direction:column;align-items:center;
+  margin-bottom:3.5rem;
+}
+.intro-lore-line{
+  font-family:'IM Fell English',serif;font-style:italic;
+  font-size:clamp(1rem,2.8vw,1.15rem);
+  color:#b8a882; /* slightly brighter than fg-dim for readability */
+  line-height:2;
+  opacity:0;animation:introLine 1.4s ease forwards;
+  margin-bottom:0.1rem;
+  word-break:normal;overflow-wrap:break-word;
+}
+.intro-lore-line.gap{margin-top:1.6rem}
+.intro-lore-line.final{
+  font-family:'Cinzel',serif;font-style:normal;
+  font-size:clamp(0.82rem,2.2vw,0.92rem);
+  letter-spacing:0.14em;
+  color:rgba(201,182,146,0.45);
+  margin-top:2rem;
+}
+@keyframes introLine{
+  0%{opacity:0;transform:translateY(8px);filter:blur(5px)}
+  100%{opacity:1;transform:translateY(0);filter:blur(0)}
+}
+.intro-divider{
+  width:0;height:1px;
+  background:linear-gradient(to right, transparent, var(--border-hi), transparent);
+  margin:1.4rem auto;
+  opacity:0;animation:introDiv 1.2s ease forwards;
+}
+@keyframes introDiv{0%{width:0;opacity:0}100%{width:90px;opacity:0.7}}
+
+.intro-proceed{
+  font-family:'Cinzel',serif;font-size:0.72rem;
+  letter-spacing:0.3em;
+  color:rgba(175,135,75,0.7);
+  background:transparent;
+  border:1px solid rgba(155,115,65,0.35);
+  cursor:pointer;
+  padding:0.95rem 2.2rem;
+  opacity:0;animation:introLine 1s ease 17s forwards;
+  transition:color 0.3s,border-color 0.3s,box-shadow 0.3s;
+  text-transform:uppercase;
+  clip-path:polygon(6px 0%,calc(100% - 6px) 0%,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0% calc(100% - 6px),0% 6px);
+}
+.intro-proceed:hover{
+  color:var(--fg);
+  border-color:rgba(155,115,65,0.7);
+  box-shadow:0 0 14px rgba(120,18,18,0.2);
+}
+.intro-proceed:active{opacity:0.7}
+
+/* ═══════════════════════════════════════════════════════════════════
+   OPENING — TITLE STAGE
+═══════════════════════════════════════════════════════════════════ */
+.intro-main{
+  display:none;flex-direction:column;align-items:center;
+  width:100%;min-height:100dvh;justify-content:center;
+  padding:2rem 1.5rem;gap:0;
+}
+
+/* Sigil */
+.sigil-wrap{
+  margin-bottom:2.8rem;
+  opacity:0;animation:sigilIn 2.4s cubic-bezier(.18,0,.4,1) 0.2s forwards;
+}
+@keyframes sigilIn{
+  0%  {opacity:0;transform:scale(0.5) rotate(-14deg)}
+  60% {opacity:0.92;transform:scale(1.05) rotate(1.2deg)}
+  100%{opacity:0.88;transform:scale(1) rotate(0)}
+}
+.sigil-wrap svg{animation:sigilPulse 5.5s ease-in-out 2.8s infinite}
+@keyframes sigilPulse{
+  0%,100%{filter:drop-shadow(0 0 12px rgba(120,18,18,0.5)) drop-shadow(0 0 30px rgba(120,18,18,0.18))}
+  50%    {filter:drop-shadow(0 0 22px rgba(158,26,26,0.82)) drop-shadow(0 0 50px rgba(120,18,18,0.32))}
+}
+
+/* Title text */
+.opening-sup{
+  font-family:'Cinzel',serif;font-size:0.56rem;
+  letter-spacing:0.5em;color:var(--fg-muted);
+  opacity:0;animation:fadeUp 1s ease 0.8s forwards;
+  margin-bottom:0.7rem;text-transform:uppercase;
+}
+.opening-title{
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(1.35rem,5.5vw,2.75rem);
+  font-weight:700;letter-spacing:0.06em;line-height:1.15;
+  opacity:0;animation:titleIn 2.2s cubic-bezier(.18,0,.3,1) 0.5s forwards;
+  text-shadow:0 2px 26px rgba(120,18,18,0.6), 0 0 65px rgba(120,18,18,0.16);
+  word-break:normal;overflow-wrap:break-word;
+}
+@keyframes titleIn{
+  0%  {opacity:0;letter-spacing:0.42em;filter:blur(7px)}
+  100%{opacity:1;letter-spacing:0.06em;filter:blur(0)}
+}
+.opening-subtitle{
+  font-family:'IM Fell English',serif;font-style:italic;
+  font-size:0.8rem;letter-spacing:0.1em;color:var(--fg-muted);
+  opacity:0;animation:fadeUp 1.2s ease 2.1s forwards;margin-top:0.45rem;
+}
+.opening-ornament{
+  display:flex;align-items:center;justify-content:center;gap:0.9rem;
+  margin:1.9rem auto;
+  opacity:0;animation:fadeUp 1s ease 2.6s forwards;
+}
+.orn-line{height:1px;width:55px;background:linear-gradient(to right,transparent,var(--border-hi))}
+.orn-line.rev{background:linear-gradient(to left,transparent,var(--border-hi))}
+.orn-cross{width:14px;height:14px;position:relative;display:flex;align-items:center;justify-content:center}
+.orn-cross::before{content:'';position:absolute;width:1px;height:100%;background:var(--red-hi);opacity:0.75}
+.orn-cross::after{content:'';position:absolute;width:100%;height:1px;background:var(--red-hi);opacity:0.75;top:25%}
+
+.opening-quote{
+  font-family:'IM Fell English',serif;font-style:italic;
+  font-size:0.98rem;color:var(--fg-dim);
+  max-width:320px;line-height:2.05;
+  opacity:0;animation:fadeUp 1.2s ease 3s forwards;margin-bottom:2.8rem;
+  word-break:normal;overflow-wrap:break-word;
+}
+.btn-start{
+  font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.32em;
+  text-transform:uppercase;padding:1rem 2.5rem;
+  background:transparent;border:1px solid var(--border-hi);color:var(--fg);
+  cursor:pointer;position:relative;overflow:hidden;
+  opacity:0;animation:fadeUp 1s ease 3.6s forwards;
+  transition:letter-spacing 0.4s,border-color 0.3s,box-shadow 0.3s;
+  clip-path:polygon(8px 0%,calc(100% - 8px) 0%,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0% calc(100% - 8px),0% 8px);
+}
+.btn-start::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--red-glow),transparent);opacity:0;transition:opacity 0.4s}
+.btn-start:hover::before{opacity:1}
+.btn-start:hover{border-color:rgba(158,26,26,0.68);letter-spacing:0.4em;box-shadow:0 0 18px rgba(120,18,18,0.2)}
+.btn-start:active{opacity:0.72}
+
+/* ═══════════════════════════════════════════════════════════════════
+   GAME SCENE
+═══════════════════════════════════════════════════════════════════ */
+#game{
+  justify-content:flex-start;align-items:stretch;
+  padding:0;max-width:740px;margin:0 auto;
+  width:100%;overflow-x:hidden;
+}
+.scene-header{
+  display:flex;justify-content:space-between;align-items:center;gap:0.8rem;
+  padding:0.8rem 1rem 0.8rem 1.6rem;
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;
+  background:rgba(5,4,10,0.95);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  z-index:10;
+}
+.scene-header::after{
+  content:'';position:absolute;bottom:-1px;left:1.6rem;right:1rem;height:1px;
+  background:linear-gradient(to right,var(--red) 0%,transparent 38%,transparent 62%,var(--fervor-hi) 100%);
+  opacity:0.38;
+}
+.karma-badge{display:flex;align-items:center;gap:0.5rem;flex-shrink:0;min-width:0}
+.karma-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;transition:background-color 0.8s,box-shadow 0.8s}
+.karma-text{font-family:'Cinzel',serif;font-size:0.63rem;letter-spacing:0.08em;transition:color 0.8s;white-space:nowrap}
+.karma-num{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.06em;color:var(--fg-muted);white-space:nowrap}
+
+.fervor-badge{display:flex;align-items:center;gap:0.4rem;flex-shrink:0}
+.fervor-icon{font-size:0.65rem;color:var(--fervor-hi);text-shadow:0 0 5px var(--fervor-hi)}
+.fervor-text{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.08em;color:rgba(52,84,120,0.9);white-space:nowrap}
+
+.scene-meta-group{
+  display:flex;align-items:center;gap:0.5rem;
+  font-family:'Cinzel',serif;font-size:0.58rem;
+  letter-spacing:0.16em;color:var(--fg-muted);
+  text-transform:uppercase;flex:1;justify-content:center;
+  overflow:hidden;min-width:0;
+}
+.meta-cross{width:8px;height:8px;position:relative;flex-shrink:0}
+.meta-cross::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--border-hi);transform:translateX(-50%)}
+.meta-cross::after{content:'';position:absolute;top:25%;left:0;right:0;height:1px;background:var(--border-hi)}
+
+/* Settings btn */
+.settings-btn{
+  display:none;flex-shrink:0;
+  align-items:center;justify-content:center;
+  width:32px;height:32px;
+  background:transparent;
+  border:1px solid var(--border-hi);
+  color:var(--fg-muted);cursor:pointer;
+  transition:var(--trans);
+  clip-path:polygon(20% 0%,80% 0%,100% 20%,100% 80%,80% 100%,20% 100%,0% 80%,0% 20%);
+  position:relative;overflow:hidden;font-size:0.85rem;
+}
+.settings-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(120,18,18,0.22),rgba(38,62,94,0.12));opacity:0;transition:opacity 0.3s}
+.settings-btn:hover::before{opacity:1}
+.settings-btn:hover{border-color:rgba(158,26,26,0.62);color:var(--fg);box-shadow:0 0 10px rgba(120,18,18,0.22)}
+.settings-btn .gear{transition:transform 0.55s cubic-bezier(.4,0,.2,1);display:block;position:relative;z-index:1}
+.settings-btn:hover .gear{transform:rotate(90deg)}
+.settings-btn.visible{display:flex}
+
+/* Scene body */
+.scene-body{
+  flex:1;
+  padding:clamp(1.6rem,5vw,3rem) clamp(1.2rem,5vw,2.5rem);
+  display:flex;flex-direction:column;gap:1.4rem;
+  position:relative;
+  overflow-x:hidden;width:100%;box-sizing:border-box;min-width:0;
+}
+.scene-body::before,.scene-body::after{
+  content:'';position:absolute;width:18px;height:18px;
+  border-color:rgba(175,135,75,0.18);border-style:solid;pointer-events:none;
+}
+.scene-body::before{top:1.4rem;left:1rem;border-width:1px 0 0 1px}
+.scene-body::after{bottom:1.4rem;right:1rem;border-width:0 1px 1px 0}
+
+.scene-title-row{
+  display:flex;align-items:center;gap:0.7rem;
+  padding-bottom:1rem;border-bottom:1px solid var(--border);min-width:0;
+}
+.scene-title-thorn{flex-shrink:0;opacity:0.38;font-size:0.7rem;color:var(--red-hi)}
+.scene-title{
+  font-family:'Cinzel',serif;font-size:0.85rem;
+  font-weight:400;letter-spacing:0.16em;
+  color:var(--fg-dim);text-transform:uppercase;
+  min-width:0;word-break:normal;overflow-wrap:break-word;
+}
+
+.scene-text{
+  font-size:1.05rem;line-height:2.05;
+  cursor:pointer;min-height:160px;
+  position:relative;
+  width:100%;min-width:0;
+  overflow-x:hidden;
+  word-break:normal;
+  overflow-wrap:break-word;
+  hyphens:none;-webkit-hyphens:none;
+}
+.scene-text br + br{display:block;margin-top:0.6em;content:''}
+
+.skip-hint{
+  font-family:'Cinzel',serif;font-size:0.6rem;
+  color:var(--fg-muted);letter-spacing:0.15em;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   CHOICES
+═══════════════════════════════════════════════════════════════════ */
+.choices{display:flex;flex-direction:column;gap:0.8rem;animation:fadeUp 0.6s ease}
+.choices-header{
+  display:flex;align-items:center;gap:0.7rem;
+  font-family:'Cinzel',serif;font-size:0.57rem;
+  letter-spacing:0.3em;color:var(--fg-muted);margin-bottom:0.1rem;
+}
+.choices-header::before,.choices-header::after{content:'';flex:1;height:1px}
+.choices-header::before{background:linear-gradient(to right,transparent,var(--border))}
+.choices-header::after{background:linear-gradient(to left,transparent,var(--border))}
+
+.choice-btn{
+  padding:0.9rem 1.1rem 0.85rem 1.35rem;
+  background:transparent;
+  border:1px solid var(--border);border-left:2px solid transparent;
+  color:var(--fg);text-align:left;cursor:pointer;
+  font-family:'Crimson Text',serif;
+  transition:var(--trans);position:relative;overflow:hidden;
+  display:flex;flex-direction:column;gap:0.4rem;
+  width:100%;box-sizing:border-box;
+}
+.choice-btn::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:2px;
+  transform:scaleY(0);transition:transform 0.25s cubic-bezier(.4,0,.2,1);
+  transform-origin:bottom;
+}
+.choice-btn::after{content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.3s}
+.choice-btn:hover{border-color:var(--border-hi);padding-left:1.75rem}
+.choice-btn:hover::before{transform:scaleY(1)}
+.choice-btn:hover::after{opacity:1}
+.choice-btn:active{transform:scale(0.99);opacity:0.88}
+
+/* Choice text layout */
+.choice-top{display:flex;align-items:flex-start;justify-content:space-between;gap:0.7rem;min-width:0}
+.choice-text{
+  flex:1;font-size:1rem;line-height:1.6;
+  word-break:normal;overflow-wrap:break-word;hyphens:none;min-width:0;
+}
+.choice-karma{
+  flex-shrink:0;font-family:'Cinzel',serif;font-size:0.7rem;
+  font-weight:600;letter-spacing:0.05em;
+  padding:0.18rem 0.48rem;border:1px solid;border-radius:1px;
+  margin-top:0.2rem;white-space:nowrap;
+}
+.choice-note{
+  font-family:'IM Fell English',serif;font-style:italic;
+  font-size:0.82rem;line-height:1.48;opacity:0.72;
+  word-break:normal;overflow-wrap:break-word;hyphens:none;
+}
+
+/* Karma good — dourado enferrujado */
+.choice-btn.karma-good{
+  border-color:rgba(128,92,14,0.42);
+  box-shadow:0 0 8px rgba(118,86,8,0.12),inset 0 0 14px rgba(98,72,5,0.05);
+}
+.choice-btn.karma-good::before{background:#785a0a}
+.choice-btn.karma-good::after{background:linear-gradient(90deg,rgba(98,74,8,0.18),transparent)}
+.choice-btn.karma-good:hover{border-color:rgba(162,116,18,0.72);box-shadow:0 0 16px rgba(138,98,12,0.24),inset 0 0 20px rgba(108,80,5,0.09)}
+.choice-btn.karma-good .choice-karma{color:rgba(188,138,16,0.96);border-color:rgba(158,108,12,0.46);background:rgba(98,72,5,0.18)}
+.choice-btn.karma-good .choice-note{color:rgba(182,132,18,0.78)}
+
+/* Karma bad — vermelho sangue coagulado */
+.choice-btn.karma-bad{
+  border-color:rgba(108,10,10,0.46);
+  box-shadow:0 0 8px rgba(98,6,6,0.17),inset 0 0 14px rgba(86,4,4,0.06);
+}
+.choice-btn.karma-bad::before{background:#78080a}
+.choice-btn.karma-bad::after{background:linear-gradient(90deg,rgba(98,5,5,0.2),transparent)}
+.choice-btn.karma-bad:hover{border-color:rgba(148,16,16,0.72);box-shadow:0 0 16px rgba(130,6,6,0.28),inset 0 0 20px rgba(86,4,4,0.1)}
+.choice-btn.karma-bad .choice-karma{color:rgba(192,58,58,0.96);border-color:rgba(158,18,18,0.46);background:rgba(98,4,4,0.18)}
+.choice-btn.karma-bad .choice-note{color:rgba(182,58,58,0.74)}
+
+/* ═══════════════════════════════════════════════════════════════════
+   COMBAT
+═══════════════════════════════════════════════════════════════════ */
+#combat{
+  justify-content:flex-start;align-items:stretch;
+  padding:0;max-width:740px;margin:0 auto;width:100%;overflow-x:hidden;
+}
+.combat-header{
+  display:flex;justify-content:space-between;align-items:center;gap:1rem;
+  padding:0.75rem 1.5rem;border-bottom:1px solid var(--border);
+  background:rgba(5,4,10,0.95);backdrop-filter:blur(16px);
+}
+.combat-tag{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.28em;color:var(--red-hi);text-transform:uppercase}
+.combat-body{
+  flex:1;padding:1.4rem 1.5rem;display:flex;flex-direction:column;gap:1.1rem;
+  position:relative;overflow-x:hidden;
+}
+.combat-body::before,.combat-body::after{
+  content:'';position:absolute;width:16px;height:16px;
+  border-color:rgba(158,26,26,0.18);border-style:solid;pointer-events:none;
+}
+.combat-body::before{top:1rem;left:1rem;border-width:1px 0 0 1px}
+.combat-body::after{bottom:1rem;right:1rem;border-width:0 1px 1px 0}
+
+.enemy-section{display:flex;gap:1.2rem;align-items:flex-start;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.enemy-portrait{
+  width:68px;height:86px;flex-shrink:0;
+  border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;background:rgba(9,8,15,0.85);
+}
+.enemy-portrait::before,.enemy-portrait::after{content:'†';position:absolute;font-family:'Cinzel',serif;font-size:0.58rem;color:var(--border);opacity:0.5}
+.enemy-portrait::before{top:3px;left:4px}
+.enemy-portrait::after{bottom:3px;right:4px}
+
+.enemy-info{flex:1;min-width:0}
+.enemy-name{font-family:'Cinzel',serif;font-size:0.95rem;font-weight:600;letter-spacing:0.07em;margin-bottom:0.3rem;color:var(--bone);word-break:normal;overflow-wrap:break-word}
+.enemy-desc{font-family:'IM Fell English',serif;font-style:italic;font-size:0.83rem;color:var(--fg-dim);line-height:1.6;margin-bottom:0.7rem;word-break:normal;overflow-wrap:break-word}
+.hp-bar-label{font-family:'Cinzel',serif;font-size:0.56rem;letter-spacing:0.14em;color:var(--fg-muted);margin-bottom:0.22rem;display:flex;justify-content:space-between}
+.hp-bar-track{height:4px;background:rgba(255,255,255,0.06);position:relative;overflow:hidden}
+.hp-bar-fill{height:100%;background:linear-gradient(to right,var(--red),var(--red-hi));transition:width 0.5s cubic-bezier(.4,0,.2,1);position:relative}
+.hp-bar-fill::after{content:'';position:absolute;right:0;top:0;bottom:0;width:3px;background:rgba(255,255,255,0.38);animation:hpShine 2.2s ease-in-out infinite}
+@keyframes hpShine{0%,100%{opacity:0.35}50%{opacity:0.88}}
+
+.player-bars{display:flex;flex-direction:column;gap:0.5rem}
+.pbar-row{display:flex;align-items:center;gap:0.75rem}
+.pbar-label{font-family:'Cinzel',serif;font-size:0.56rem;letter-spacing:0.14em;width:3.5rem;color:var(--fg-muted);flex-shrink:0}
+.pbar-track{flex:1;height:6px;background:rgba(255,255,255,0.05);position:relative;overflow:hidden}
+.pbar-fill{height:100%;transition:width 0.4s cubic-bezier(.4,0,.2,1)}
+.pbar-fill.hp{background:linear-gradient(to right,#681010,#9e1a1a)}
+.pbar-fill.fervor{background:linear-gradient(to right,#18385a,#345478)}
+.pbar-val{font-family:'Cinzel',serif;font-size:0.6rem;width:3rem;text-align:right;color:var(--fg-dim);flex-shrink:0}
+
+.combat-log{
+  min-height:76px;max-height:115px;overflow-y:auto;
+  padding:0.7rem 0.9rem;border:1px solid var(--border);
+  background:rgba(5,4,10,0.65);
+  font-family:'IM Fell English',serif;font-style:italic;
+  font-size:0.88rem;line-height:1.75;color:var(--fg-dim);
+}
+.log-line{margin-bottom:0.18rem;word-break:normal;overflow-wrap:break-word}
+.log-good{color:rgba(178,138,58,0.92)}
+.log-bad{color:rgba(178,48,48,0.88)}
+.log-fervor{color:rgba(52,84,120,0.92)}
+.log-system{color:var(--fg-muted);font-size:0.8rem}
+
+.combat-actions{display:grid;grid-template-columns:1fr 1fr;gap:0.55rem}
+.combat-btn{
+  padding:0.85rem 0.8rem;background:transparent;
+  border:1px solid var(--border);color:var(--fg);cursor:pointer;
+  font-family:'Cinzel',serif;font-size:0.7rem;
+  letter-spacing:0.13em;text-transform:uppercase;
+  transition:var(--trans);position:relative;overflow:hidden;
+  clip-path:polygon(6px 0%,calc(100% - 6px) 0%,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0% calc(100% - 6px),0% 6px);
+  display:flex;align-items:center;justify-content:center;gap:0.45rem;
+  min-height:48px;
+}
+.combat-btn::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.3s}
+.combat-btn:hover::before{opacity:1}
+.combat-btn:hover{border-color:var(--border-hi)}
+.combat-btn:active{transform:scale(0.98)}
+.combat-btn:disabled{opacity:0.32;cursor:not-allowed;pointer-events:none}
+.combat-btn.attack::before{background:linear-gradient(135deg,rgba(120,18,18,0.22),transparent)}
+.combat-btn.attack:hover{border-color:rgba(158,26,26,0.52)}
+.combat-btn.fervor-btn::before{background:linear-gradient(135deg,rgba(38,62,94,0.28),transparent)}
+.combat-btn.fervor-btn:hover{border-color:rgba(52,84,120,0.52)}
+.combat-btn.parry::before{background:linear-gradient(135deg,rgba(138,98,12,0.22),transparent)}
+.combat-btn.parry:hover{border-color:rgba(178,128,18,0.52)}
+.combat-btn.flee-btn::before{background:linear-gradient(135deg,rgba(55,55,55,0.22),transparent)}
+
+/* Parry mini-game */
+.parry-game{
+  padding:1rem;border:1px solid var(--border-hi);
+  background:rgba(5,4,10,0.85);
+  display:none;flex-direction:column;gap:0.8rem;animation:fadeUp 0.3s ease;
+}
+.parry-instruction{font-family:'Cinzel',serif;font-size:0.63rem;letter-spacing:0.2em;color:var(--fg-dim);text-align:center}
+.parry-track{height:32px;background:rgba(255,255,255,0.04);position:relative;overflow:hidden;border:1px solid var(--border)}
+.parry-zone-good{position:absolute;top:0;bottom:0;width:38%;left:31%;background:rgba(178,128,15,0.08)}
+.parry-zone-perfect{position:absolute;top:0;bottom:0;width:22%;left:39%;background:rgba(138,98,12,0.26);border-left:1px solid rgba(178,128,15,0.42);border-right:1px solid rgba(178,128,15,0.42)}
+.parry-needle{position:absolute;top:0;bottom:0;width:3px;background:var(--fg);box-shadow:0 0 8px rgba(200,178,140,0.82);transform:translateX(-50%);left:0%;transition:none}
+.parry-zone-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Cinzel',serif;font-size:0.52rem;letter-spacing:0.15em;color:rgba(178,128,15,0.62);pointer-events:none}
+.parry-execute-btn{
+  padding:0.75rem;background:transparent;border:1px solid var(--border-hi);
+  color:var(--fg);cursor:pointer;font-family:'Cinzel',serif;font-size:0.72rem;
+  letter-spacing:0.25em;text-transform:uppercase;transition:var(--trans);min-height:48px;
+  clip-path:polygon(6px 0%,calc(100% - 6px) 0%,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0% calc(100% - 6px),0% 6px);
+}
+.parry-execute-btn:hover{background:rgba(138,98,12,0.16);border-color:rgba(178,128,18,0.68);box-shadow:0 0 14px rgba(138,98,12,0.22)}
+.parry-execute-btn:active{opacity:0.8}
+
+/* Death overlay */
+.death-overlay{
+  position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  pointer-events:none;transition:background 0.85s ease;
+  padding:2rem;text-align:center;
+}
+.death-overlay.active{background:rgba(0,0,0,0.93);pointer-events:all}
+.death-title{
+  font-family:'Cinzel',serif;font-size:clamp(1.8rem,6vw,3rem);
+  font-weight:700;letter-spacing:0.12em;color:#8b1a1a;
+  text-shadow:0 0 38px rgba(139,26,26,0.82);
+  opacity:0;transform:scale(0.8);
+  transition:opacity 0.6s ease 0.3s,transform 0.6s ease 0.3s;
+  margin-bottom:0.5rem;
+}
+.death-overlay.active .death-title{opacity:1;transform:scale(1)}
+.death-subtitle{
+  font-family:'IM Fell English',serif;font-style:italic;
+  font-size:1rem;color:var(--fg-dim);
+  opacity:0;transition:opacity 0.6s ease 0.75s;
+  margin-bottom:2rem;max-width:380px;word-break:normal;overflow-wrap:break-word;
+}
+.death-overlay.active .death-subtitle{opacity:1}
+.death-btn{
+  padding:0.85rem 2.2rem;background:transparent;
+  border:1px solid rgba(139,26,26,0.52);color:rgba(198,78,78,0.88);cursor:pointer;
+  font-family:'Cinzel',serif;font-size:0.73rem;letter-spacing:0.25em;
+  opacity:0;transition:opacity 0.6s ease 1.15s,background 0.3s,border-color 0.3s;
+}
+.death-overlay.active .death-btn{opacity:1}
+.death-btn:hover{background:rgba(139,26,26,0.16);border-color:rgba(139,26,26,0.72)}
+.death-btn:active{opacity:0.75}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ARC MENU
+═══════════════════════════════════════════════════════════════════ */
+#arcMenu{
+  justify-content:flex-start;
+  padding:clamp(2rem,5vw,3.5rem) clamp(1.2rem,5vw,2.5rem);
+  max-width:700px;margin:0 auto;width:100%;gap:0;overflow-x:hidden;
+}
+.menu-eyebrow{
+  font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.35em;
+  color:var(--fg-muted);margin-bottom:0.6rem;
+  display:flex;align-items:center;gap:0.6rem;
+}
+.menu-eyebrow::before{content:'†';color:var(--red);font-size:0.7rem}
+.menu-title{font-family:'Cinzel Decorative',serif;font-size:clamp(1.2rem,4vw,1.8rem);letter-spacing:0.07em;margin-bottom:0.5rem}
+.menu-ornament{display:flex;align-items:center;gap:0.8rem;margin-bottom:2.5rem}
+.mo-line{flex:1;max-width:55px;height:1px;background:var(--border-hi)}
+.mo-cross{width:10px;height:10px;position:relative}
+.mo-cross::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--red-hi);transform:translateX(-50%)}
+.mo-cross::after{content:'';position:absolute;top:25%;left:0;right:0;height:1px;background:var(--red-hi)}
+
+.arc-cards{display:flex;flex-direction:column;gap:0.85rem;width:100%}
+.arc-card{
+  padding:1.4rem 1.5rem;background:transparent;
+  border:1px solid var(--border);color:var(--fg);text-align:left;cursor:pointer;
+  font-family:inherit;transition:var(--trans);position:relative;overflow:hidden;
+  width:100%;box-sizing:border-box;
+}
+.arc-card::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(to bottom,var(--red),var(--fervor-hi));
+  transform:scaleY(0);transition:transform 0.3s cubic-bezier(.4,0,.2,1);transform-origin:center;
+}
+.arc-card:not(:disabled):hover{border-color:var(--border-hi);background:rgba(175,135,75,0.025)}
+.arc-card:not(:disabled):hover::before{transform:scaleY(1)}
+.arc-card:disabled{cursor:not-allowed;opacity:0.35}
+.arc-card:not(:disabled):active{transform:scale(0.99)}
+.arc-card-status{position:absolute;top:0.9rem;right:1.2rem;font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.2em;color:var(--fg-muted)}
+.arc-card-status.completed{color:var(--gold-hi)}
+.arc-card-order{font-family:'Cinzel',serif;font-size:0.56rem;letter-spacing:0.2em;color:var(--fg-muted);margin-bottom:0.4rem;text-transform:uppercase}
+.arc-card-title{font-family:'Cinzel',serif;font-size:1rem;font-weight:600;margin-bottom:0.5rem;letter-spacing:0.05em;word-break:normal;overflow-wrap:break-word}
+.arc-card-desc{font-size:0.87rem;color:var(--fg-dim);line-height:1.65;word-break:normal;overflow-wrap:break-word}
+.menu-footer{margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--border);width:100%}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ARC END
+═══════════════════════════════════════════════════════════════════ */
+#arcEnd{text-align:center;gap:0;overflow-x:hidden}
+.end-eyebrow{
+  font-family:'Cinzel',serif;font-size:0.61rem;letter-spacing:0.35em;
+  color:var(--fg-muted);margin-bottom:1.2rem;
+  display:flex;align-items:center;justify-content:center;gap:0.6rem;
+}
+.end-eyebrow::before,.end-eyebrow::after{content:'';width:28px;height:1px;background:var(--border-hi)}
+.end-title{font-family:'Cinzel Decorative',serif;font-size:clamp(1.2rem,4vw,2rem);letter-spacing:0.07em;line-height:1.3;text-shadow:0 0 22px rgba(120,18,18,0.32);word-break:normal;overflow-wrap:break-word}
+.end-rule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:2rem auto}
+.end-rule-line{width:55px;height:1px;background:var(--border-hi)}
+.end-rule-sigil{font-family:'Cinzel',serif;font-size:1rem;color:var(--red-hi);opacity:0.62}
+.end-stats{display:flex;gap:2.5rem;justify-content:center;align-items:center;margin-bottom:3rem;flex-wrap:wrap}
+.end-stat{text-align:center}
+.end-stat-value{font-family:'Cinzel',serif;font-size:2rem;font-weight:700;margin-bottom:0.25rem;line-height:1}
+.end-stat-label{font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.25em;color:var(--fg-muted);text-transform:uppercase}
+.end-vdivider{width:1px;height:48px;background:var(--border)}
+.end-btns{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center}
+
+.btn-primary{
+  padding:0.88rem 2.2rem;background:transparent;
+  border:1px solid var(--border-hi);color:var(--fg);cursor:pointer;
+  font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.22em;
+  text-transform:uppercase;transition:var(--trans);
+  clip-path:polygon(6px 0%,calc(100% - 6px) 0%,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0% calc(100% - 6px),0% 6px);
+}
+.btn-primary:hover{background:rgba(175,135,75,0.07);border-color:rgba(175,135,75,0.62)}
+.btn-primary:active{opacity:0.78}
+.btn-secondary{
+  padding:0.88rem 2.2rem;background:transparent;
+  border:1px solid var(--border);color:var(--fg-dim);cursor:pointer;
+  font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.22em;
+  text-transform:uppercase;transition:var(--trans);opacity:0.68;
+  clip-path:polygon(6px 0%,calc(100% - 6px) 0%,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0% calc(100% - 6px),0% 6px);
+}
+.btn-secondary:hover{opacity:1;border-color:var(--border-hi)}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SETTINGS PANEL
+═══════════════════════════════════════════════════════════════════ */
+.settings-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.62);z-index:300;opacity:0;pointer-events:none;transition:opacity 0.3s;backdrop-filter:blur(3px)}
+.settings-overlay.open{opacity:1;pointer-events:all}
+.settings-panel{
+  position:fixed;top:0;right:0;bottom:0;
+  width:min(340px,94vw);background:var(--bg2);
+  border-left:1px solid var(--border);
+  padding:0;overflow-y:auto;z-index:301;
+  transform:translateX(100%);transition:transform 0.32s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;
+}
+.settings-panel.open{transform:translateX(0)}
+.sp-head{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 1.5rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg2);z-index:1}
+.sp-head-title{display:flex;align-items:center;gap:0.6rem;font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:0.25em;color:var(--fg-dim)}
+.sp-head-title::before{content:'✦';color:var(--red-hi);font-size:0.62rem}
+.sp-close{background:none;border:none;color:var(--fg);cursor:pointer;font-size:1.1rem;opacity:0.45;transition:opacity 0.2s,transform 0.2s;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center}
+.sp-close:hover{opacity:0.92;transform:rotate(90deg)}
+.sp-content{padding:1.2rem 1.5rem;flex:1;display:flex;flex-direction:column;gap:0}
+.sp-section{margin-bottom:1.6rem}
+.sp-label{display:block;font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.2em;color:var(--fg-muted);margin-bottom:0.65rem;text-transform:uppercase}
+.sp-options{display:flex;flex-wrap:wrap;gap:0.4rem}
+.opt-btn{
+  padding:0.42rem 0.88rem;background:transparent;
+  border:1px solid var(--border);color:var(--fg-dim);cursor:pointer;
+  font-family:'Crimson Text',serif;font-size:0.95rem;
+  transition:var(--trans);display:inline-flex;align-items:center;gap:0.4rem;
+  min-height:38px;
+}
+.opt-btn:hover:not(.active){border-color:var(--border-hi);color:var(--fg)}
+.opt-btn.active{background:rgba(120,18,18,0.24);border-color:rgba(158,26,26,0.62);color:var(--fg)}
+.opt-swatch{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block}
+.sp-range-row{display:flex;align-items:center;gap:0.8rem}
+.sp-range-row input[type=range]{flex:1;accent-color:var(--red-hi);cursor:pointer}
+.sp-range-val{font-family:'Cinzel',serif;font-size:0.7rem;color:var(--fg-dim);min-width:2.5rem;text-align:right}
+.sp-divider{height:1px;background:var(--border);margin:0.6rem 0 1.5rem}
+.sp-full-btn{width:100%;padding:0.72rem;text-align:center;font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.18em;cursor:pointer;transition:var(--trans);min-height:44px}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--fg-dim)}
+.btn-ghost:hover{border-color:var(--border-hi);color:var(--fg);background:rgba(255,255,255,0.03)}
+.btn-ghost-danger{background:transparent;border:1px solid rgba(120,18,18,0.4);color:rgba(188,68,68,0.82);display:flex;align-items:center;justify-content:center;gap:0.5rem}
+.btn-ghost-danger:hover{background:rgba(120,18,18,0.14);border-color:rgba(158,26,26,0.68);color:rgba(208,88,88,0.96)}
+.sp-version{font-family:'Cinzel',serif;font-size:0.53rem;letter-spacing:0.14em;color:var(--fg-muted);text-align:center;padding:1rem;border-top:1px solid var(--border);opacity:0.48}
+
+/* Reset confirm box */
+#resetConfirmBox{display:none;flex-direction:column;gap:0.45rem;padding:0.8rem;border:1px solid rgba(120,18,18,0.42);background:rgba(120,18,18,0.08);border-radius:1px}
+#resetConfirmBox p{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.1em;color:rgba(198,78,78,0.88);line-height:1.6}
+#resetConfirmBox .confirm-btns{display:flex;gap:0.4rem;margin-top:0.2rem}
+#resetConfirmBox .confirm-btns button{flex:1;min-height:40px}
+
+/* New game confirm box */
+#newGameConfirmBox{display:none;flex-direction:column;gap:0.45rem;padding:0.8rem;border:1px solid rgba(120,18,18,0.42);background:rgba(120,18,18,0.08);margin-top:0.5rem}
+#newGameConfirmBox p{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.1em;color:rgba(198,78,78,0.88);line-height:1.6}
+#newGameConfirmBox .confirm-btns{display:flex;gap:0.4rem;margin-top:0.2rem}
+#newGameConfirmBox .confirm-btns button{flex:1;min-height:40px}
+
+/* ═══════════════════════════════════════════════════════════════════
+   EFFECTS
+═══════════════════════════════════════════════════════════════════ */
+.blood-drop{position:fixed;pointer-events:none;z-index:1;border-radius:50% 50% 60% 40%/30% 30% 70% 70%;background:var(--red);animation:drip linear forwards;will-change:transform,opacity}
+@keyframes drip{0%{transform:translateY(-10px);opacity:0.52}15%{opacity:0.42}90%{opacity:0.08}100%{transform:translateY(101vh);opacity:0}}
+.particle{position:fixed;pointer-events:none;z-index:1;border-radius:50%;animation:particleFade linear forwards;will-change:transform,opacity}
+@keyframes particleFade{0%{transform:translate(0,0) scale(1);opacity:0.78}100%{transform:translate(var(--tx),var(--ty)) scale(0);opacity:0}}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MOBILE — ≤600px
+═══════════════════════════════════════════════════════════════════ */
+@media (max-width: 600px){
+  body{font-size:16px}
+
+  /* Ensure total containment */
+  #app,#game,#combat,#arcMenu,#arcEnd,#opening,
+  .scene-body,.scene-text,.combat-body,
+  .choice-btn,.choice-text,.choice-note,
+  .arc-card-title,.arc-card-desc,.enemy-name,.enemy-desc{
+    max-width:100vw;overflow-wrap:break-word;word-break:normal;hyphens:none;
+  }
+
+  /* Opening */
+  #opening{padding:1rem}
+  .sigil-wrap{margin-bottom:1.8rem}
+  .sigil-wrap svg{width:82px;height:98px}
+  .opening-title{font-size:clamp(1.3rem,7.5vw,2rem)}
+  .opening-ornament{margin:1.4rem auto}
+  .opening-quote{font-size:0.92rem;margin-bottom:2rem;max-width:290px}
+  .btn-start{padding:0.95rem 2rem;font-size:0.7rem;letter-spacing:0.25em}
+  .intro-lore-line{font-size:clamp(0.92rem,4vw,1.05rem)}
+  .intro-proceed{padding:0.9rem 1.8rem;font-size:0.68rem}
+
+  /* Game */
+  #game{max-width:100%;width:100%}
+  .scene-header{padding:0.65rem 0.75rem 0.65rem 0.9rem;gap:0.4rem}
+  .karma-text{font-size:0.58rem}
+  .karma-num{font-size:0.55rem}
+  .fervor-text{font-size:0.55rem}
+  .scene-meta-group{font-size:0.52rem;letter-spacing:0.08em;gap:0.35rem}
+  .settings-btn{width:30px;height:30px;font-size:0.8rem}
+
+  .scene-body{padding:1rem 0.9rem 1.5rem;gap:1rem}
+  .scene-body::before,.scene-body::after{width:12px;height:12px}
+  .scene-title{font-size:0.76rem;letter-spacing:0.12em}
+  .scene-text{font-size:0.98rem;line-height:1.9}
+  .skip-hint{font-size:0.58rem}
+
+  /* Choices */
+  .choices{gap:0.65rem}
+  .choice-btn{padding:0.88rem 0.9rem 0.82rem 1.1rem}
+  .choice-btn:hover{padding-left:1.1rem} /* disable indent on touch */
+  .choice-text{font-size:0.96rem}
+  .choice-karma{font-size:0.66rem;padding:0.15rem 0.42rem}
+  .choice-note{font-size:0.78rem}
+
+  /* Combat */
+  #combat{max-width:100%;width:100%}
+  .combat-header{padding:0.6rem 0.9rem;gap:0.4rem}
+  .combat-tag{font-size:0.56rem;letter-spacing:0.16em}
+  .combat-body{padding:0.9rem 0.9rem;gap:0.9rem}
+  .combat-body::before,.combat-body::after{width:10px;height:10px}
+  .enemy-section{flex-direction:column;gap:0.7rem;padding-bottom:0.8rem}
+  .enemy-portrait{width:100%;height:56px}
+  .enemy-name{font-size:0.88rem}
+  .enemy-desc{display:none}
+  .combat-log{min-height:58px;max-height:88px;font-size:0.82rem;padding:0.55rem 0.7rem}
+  .combat-actions{gap:0.45rem}
+  .combat-btn{padding:0.9rem 0.5rem;font-size:0.63rem;letter-spacing:0.07em;min-height:52px}
+  .parry-track{height:44px}
+  .parry-needle{width:4px}
+  .parry-execute-btn{padding:0.88rem;font-size:0.68rem;min-height:52px}
+  .parry-instruction{font-size:0.58rem}
+
+  /* Arc menu */
+  #arcMenu{padding:1.5rem 1rem}
+  .menu-title{font-size:clamp(1.1rem,5.5vw,1.5rem)}
+  .arc-card{padding:1.1rem 1.1rem}
+  .arc-card-title{font-size:0.92rem}
+  .arc-card-desc{font-size:0.82rem}
+
+  /* Arc end */
+  #arcEnd{padding:1.5rem 1rem}
+  .end-title{font-size:clamp(1rem,5.5vw,1.6rem)}
+  .end-stats{gap:1.4rem;margin-bottom:2rem}
+  .end-stat-value{font-size:1.6rem}
+  .end-btns{flex-direction:column;align-items:center}
+  .btn-primary,.btn-secondary{width:100%;max-width:280px;padding:1rem}
+
+  /* Settings full-width on mobile */
+  .settings-panel{width:100%;border-left:none;border-top:1px solid var(--border)}
+  .sp-content{padding:1rem 1.2rem}
+  .opt-btn{padding:0.5rem 0.9rem;font-size:1rem;min-height:42px}
+  .sp-close{font-size:1.3rem;opacity:0.72}
+
+  /* Death */
+  .death-title{font-size:clamp(1.5rem,9vw,2.5rem)}
+  .death-subtitle{font-size:0.88rem;padding:0 1rem}
+  .death-btn{padding:1rem 1.8rem}
+}
+
+/* Landscape mobile */
+@media (max-height:500px) and (orientation:landscape){
+  .screen{min-height:100dvh;justify-content:flex-start}
+  #opening{padding-top:1rem;padding-bottom:1rem}
+  .sigil-wrap{margin-bottom:1rem}
+  .sigil-wrap svg{width:60px;height:72px}
+  .opening-quote{margin-bottom:1.5rem;font-size:0.88rem}
+  .scene-body{padding:0.75rem 1rem}
+  .combat-body{padding:0.65rem 1rem;gap:0.65rem}
+  .combat-log{min-height:46px;max-height:68px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ══ OPENING ══════════════════════════════════════════════════════ -->
+<div id="opening" class="screen active">
+
+  <!-- Stage 0: Intro lore -->
+  <div class="intro-stage" id="introLore">
+    <div class="intro-lore-content">
+      <p class="intro-lore-line" style="animation-delay:0.8s">O Milagre não escolheu ninguém.</p>
+      <p class="intro-lore-line" style="animation-delay:2.8s">Caiu como caem as coisas divinas —</p>
+      <p class="intro-lore-line" style="animation-delay:4.6s">sem consultar quem estaria embaixo.</p>
+      <div class="intro-divider"   style="animation-delay:6.4s"></div>
+      <p class="intro-lore-line gap" style="animation-delay:7.2s">Você sobreviveu ao Campo dos Mortos.</p>
+      <p class="intro-lore-line" style="animation-delay:9.4s">Aquele que carrega a Marca gravada pela própria sobrevivência.</p>
+      <p class="intro-lore-line" style="animation-delay:11.8s">O que isso significa ainda não foi decidido.</p>
+      <div class="intro-divider"   style="animation-delay:13.8s"></div>
+      <p class="intro-lore-line final" style="animation-delay:14.8s">Mas algo nas profundezas já sabe seu nome.</p>
+    </div>
+    <button class="intro-proceed" onclick="advanceToTitle()">† Carregar a Cruz †</button>
+  </div>
+
+  <!-- Stage 1: Title screen -->
+  <div class="intro-main" id="introMain">
+    <div class="sigil-wrap">
+      <!-- Cruz Processional Penitente — iconografia Blasphemous -->
+      <svg width="96" height="118" viewBox="0 0 96 118" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Aureola externa dupla -->
+        <circle cx="48" cy="46" r="43" stroke="#781212" stroke-width="0.7" fill="none" opacity="0.48"/>
+        <circle cx="48" cy="46" r="37" stroke="#781212" stroke-width="0.35" fill="none" opacity="0.25"/>
+        <!-- Entalhes cardinais -->
+        <line x1="48" y1="3"  x2="48" y2="9"  stroke="#8a1818" stroke-width="1.5" opacity="0.78"/>
+        <line x1="48" y1="83" x2="48" y2="89" stroke="#8a1818" stroke-width="1.5" opacity="0.78"/>
+        <line x1="5"  y1="46" x2="11" y2="46" stroke="#8a1818" stroke-width="1.5" opacity="0.78"/>
+        <line x1="85" y1="46" x2="91" y2="46" stroke="#8a1818" stroke-width="1.5" opacity="0.78"/>
+        <!-- Entalhes diagonais -->
+        <line x1="15" y1="16" x2="19" y2="20" stroke="#781212" stroke-width="0.9" opacity="0.38"/>
+        <line x1="77" y1="16" x2="73" y2="20" stroke="#781212" stroke-width="0.9" opacity="0.38"/>
+        <line x1="15" y1="76" x2="19" y2="72" stroke="#781212" stroke-width="0.9" opacity="0.38"/>
+        <line x1="77" y1="76" x2="73" y2="72" stroke="#781212" stroke-width="0.9" opacity="0.38"/>
+        <!-- Haste vertical principal — processional longa -->
+        <rect x="46" y="8" width="4" height="106" rx="0.4" fill="#8a1818" opacity="0.85"/>
+        <!-- Travessão horizontal — posição gótica alta -->
+        <rect x="26" y="30" width="44" height="4" rx="0.4" fill="#8a1818" opacity="0.85"/>
+        <!-- Ponteiras flamejantes — topo -->
+        <path d="M48 8 L44 14 L47 10 L48 8 L49 10 L52 14 Z" fill="#9e1a1a" opacity="0.95"/>
+        <!-- Ponteiras — base -->
+        <path d="M46 110 L44 106 L48 114 L52 106 L50 110 Z" fill="#781212" opacity="0.62"/>
+        <!-- Ponteiras — esquerda e direita -->
+        <path d="M26 32 L30 28 L27 32 L30 36 Z" fill="#9e1a1a" opacity="0.72"/>
+        <path d="M70 32 L66 28 L69 32 L66 36 Z" fill="#9e1a1a" opacity="0.72"/>
+        <!-- Finalidades cruzadas nos extremos da horizontal -->
+        <line x1="27" y1="28" x2="27" y2="36" stroke="#8a1818" stroke-width="0.6" opacity="0.52"/>
+        <line x1="69" y1="28" x2="69" y2="36" stroke="#8a1818" stroke-width="0.6" opacity="0.52"/>
+        <line x1="44" y1="11" x2="52" y2="11" stroke="#8a1818" stroke-width="0.6" opacity="0.52"/>
+        <!-- Medalha central — A Ferida Milagrosa -->
+        <ellipse cx="48" cy="31" rx="7.5" ry="9.5" fill="#781212" opacity="0.92"/>
+        <ellipse cx="48" cy="31" rx="4.5" ry="6.5" fill="#9e1a1a" opacity="0.96"/>
+        <ellipse cx="48" cy="30" rx="2.2" ry="4"   fill="#c02424" opacity="1"/>
+        <!-- Lágrima sagrada / Rasgão da Ferida -->
+        <line x1="48" y1="26" x2="48" y2="36" stroke="rgba(220,78,78,0.42)" stroke-width="0.7"/>
+        <!-- Halo ao redor da ferida -->
+        <circle cx="48" cy="31" r="12" stroke="#781212" stroke-width="0.45" fill="none" opacity="0.28"/>
+        <circle cx="48" cy="31" r="9"  stroke="#781212" stroke-width="0.25" fill="none" opacity="0.18"/>
+        <!-- Espinhos na haste acima do travessão -->
+        <path d="M46 19 L41 23 M46 19 L51 23" stroke="#4e0c0c" stroke-width="1"   opacity="0.55"/>
+        <path d="M46 25 L42 28 M46 25 L50 28" stroke="#4e0c0c" stroke-width="0.85" opacity="0.44"/>
+        <!-- Espinhos na haste abaixo do travessão -->
+        <path d="M46 44 L41 48 M46 44 L51 48" stroke="#4e0c0c" stroke-width="1"   opacity="0.55"/>
+        <path d="M46 54 L42 57 M46 54 L50 57" stroke="#4e0c0c" stroke-width="0.85" opacity="0.44"/>
+        <path d="M46 64 L42 67 M46 64 L50 67" stroke="#4e0c0c" stroke-width="0.78" opacity="0.36"/>
+        <path d="M46 74 L42 77 M46 74 L50 77" stroke="#4e0c0c" stroke-width="0.7"  opacity="0.30"/>
+        <path d="M46 84 L43 87 M46 84 L49 87" stroke="#4e0c0c" stroke-width="0.65" opacity="0.25"/>
+        <!-- Espinhos no travessão -->
+        <path d="M35 30 L31 25 M35 30 L31 35" stroke="#4e0c0c" stroke-width="0.85" opacity="0.42"/>
+        <path d="M61 30 L65 25 M61 30 L65 35" stroke="#4e0c0c" stroke-width="0.85" opacity="0.42"/>
+        <!-- Lágrima de sangue na base -->
+        <path d="M48 108 Q50 112 48 116 Q46 112 48 108Z" fill="#781212" opacity="0.58"/>
+        <!-- Detalhe ornamental — semicírculo na base da haste -->
+        <path d="M44 94 Q48 98 52 94" stroke="#781212" stroke-width="0.5" fill="none" opacity="0.35"/>
+      </svg>
+    </div>
+    <p class="opening-sup">Uma Crônica de Carne, Penitência e Ferro</p>
+    <h1 class="opening-title">Um Réquiem Para Deus</h1>
+    <p class="opening-subtitle">— Livro Primeiro: A Marca —</p>
+    <div class="opening-ornament">
+      <div class="orn-line"></div>
+      <div class="orn-cross"></div>
+      <div class="orn-line rev"></div>
+    </div>
+    <p class="opening-quote">"O Milagre não foi uma bênção.<br/>Foi uma ferida que o mundo<br/>nunca conseguiu fechar."</p>
+    <button class="btn-start" onclick="startGame()">Iniciar a Jornada</button>
+  </div>
+
+</div>
+
+<!-- ══ GAME ═════════════════════════════════════════════════════════ -->
+<div id="game" class="screen">
+  <div class="scene-header">
+    <div class="karma-badge">
+      <div class="karma-dot" id="karmaDot"></div>
+      <span class="karma-text" id="karmaLabel"></span>
+      <span class="karma-num"  id="karmaNum"></span>
+    </div>
+    <div class="scene-meta-group">
+      <div class="meta-cross"></div>
+      <span id="sceneMeta"></span>
+      <div class="meta-cross"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.6rem">
+      <div class="fervor-badge">
+        <span class="fervor-icon">✦</span>
+        <span class="fervor-text" id="fervorText">50</span>
+      </div>
+      <button class="settings-btn" id="settingsBtn" onclick="toggleSettings()" title="Customizações">
+        <span class="gear">⚙</span>
+      </button>
+    </div>
+  </div>
+  <div class="scene-body">
+    <div class="scene-title-row">
+      <span class="scene-title-thorn">†</span>
+      <h2 class="scene-title" id="sceneTitle"></h2>
+    </div>
+    <div class="scene-text" id="sceneText" onclick="onTextClick()"></div>
+    <p class="skip-hint" id="skipHint">Clique no texto para revelar</p>
+    <div class="choices" id="choices" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ══ COMBAT ═══════════════════════════════════════════════════════ -->
+<div id="combat" class="screen">
+  <div class="combat-header">
+    <div class="karma-badge">
+      <div class="karma-dot" id="combatKarmaDot"></div>
+      <span class="karma-text" id="combatKarmaLabel"></span>
+      <span class="karma-num"  id="combatKarmaNum"></span>
+    </div>
+    <span class="combat-tag">⚔ Combate</span>
+    <div class="fervor-badge">
+      <span class="fervor-icon">✦</span>
+      <span class="fervor-text" id="combatFervorText">50</span>
+    </div>
+  </div>
+  <div class="combat-body">
+    <div class="enemy-section">
+      <div class="enemy-portrait" id="enemyPortrait"></div>
+      <div class="enemy-info">
+        <h3 class="enemy-name" id="enemyName"></h3>
+        <p  class="enemy-desc" id="enemyDesc"></p>
+        <div class="hp-bar-label"><span>VIDA</span><span id="enemyHpText"></span></div>
+        <div class="hp-bar-track"><div class="hp-bar-fill" id="enemyHpFill"></div></div>
+      </div>
+    </div>
+    <div class="player-bars">
+      <div class="pbar-row">
+        <span class="pbar-label">CARNE</span>
+        <div class="pbar-track"><div class="pbar-fill hp" id="playerHpFill"></div></div>
+        <span class="pbar-val" id="playerHpVal"></span>
+      </div>
+      <div class="pbar-row">
+        <span class="pbar-label">FERVOR</span>
+        <div class="pbar-track"><div class="pbar-fill fervor" id="playerFervorFill"></div></div>
+        <span class="pbar-val" id="playerFervorVal"></span>
+      </div>
+    </div>
+    <div class="combat-log" id="combatLog"></div>
+    <div class="combat-actions">
+      <button class="combat-btn attack"     onclick="combatAction('attack')">⚔ Golpear</button>
+      <button class="combat-btn fervor-btn" id="fervorCombatBtn" onclick="combatAction('fervor')">✦ Fervor</button>
+      <button class="combat-btn parry"      onclick="combatAction('parry')">◈ Aparar</button>
+      <button class="combat-btn flee-btn"   onclick="combatAction('flee')">↩ Fugir</button>
+    </div>
+    <div class="parry-game" id="parryGame">
+      <p class="parry-instruction">† Clique em APARAR no momento certo †</p>
+      <div class="parry-track">
+        <div class="parry-zone-good"></div>
+        <div class="parry-zone-perfect"></div>
+        <span class="parry-zone-label">PERFEITO</span>
+        <div class="parry-needle" id="parryNeedle"></div>
+      </div>
+      <button class="parry-execute-btn" onclick="executeParry()">† APARAR †</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ARC MENU ══════════════════════════════════════════════════════ -->
+<div id="arcMenu" class="screen">
+  <p class="menu-eyebrow">Crônica</p>
+  <h1 class="menu-title">Selecionar Arco</h1>
+  <div class="menu-ornament">
+    <div class="mo-line"></div><div class="mo-cross"></div><div class="mo-line"></div>
+  </div>
+  <div class="arc-cards" id="arcCards"></div>
+  <div class="menu-footer">
+    <button class="btn-ghost-danger sp-full-btn" id="newGameBtn" onclick="showNewGameConfirm()">✝ Novo Jogo</button>
+    <div id="newGameConfirmBox">
+      <p>Todo o progresso será perdido. Confirma?</p>
+      <div class="confirm-btns">
+        <button class="btn-ghost-danger sp-full-btn" onclick="executeNewGame()">✝ Confirmar</button>
+        <button class="opt-btn sp-full-btn btn-ghost" onclick="hideNewGameConfirm()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ARC END ═══════════════════════════════════════════════════════ -->
+<div id="arcEnd" class="screen">
+  <p class="end-eyebrow">Fim do Arco</p>
+  <h1 class="end-title" id="endTitle"></h1>
+  <div class="end-rule">
+    <div class="end-rule-line"></div>
+    <span class="end-rule-sigil">✦</span>
+    <div class="end-rule-line"></div>
+  </div>
+  <div class="end-stats">
+    <div class="end-stat"><div class="end-stat-value" id="endKarma"></div><div class="end-stat-label">Karma</div></div>
+    <div class="end-vdivider"></div>
+    <div class="end-stat"><div class="end-stat-value" id="endScenes"></div><div class="end-stat-label">Cenas</div></div>
+    <div class="end-vdivider"></div>
+    <div class="end-stat"><div class="end-stat-value" id="endAlign" style="font-size:1.05rem"></div><div class="end-stat-label">Alinhamento</div></div>
+  </div>
+  <div class="end-btns">
+    <button class="btn-primary"   onclick="continueToMenu()">Continuar</button>
+    <button class="btn-secondary" id="btnEndMenu">Menu dos Arcos</button>
+  </div>
+</div>
+
+</div><!-- #app -->
+
+<!-- ══ SETTINGS ══════════════════════════════════════════════════════ -->
+<div class="settings-overlay" id="settingsOverlay" onclick="toggleSettings()"></div>
+<div class="settings-panel" id="settingsPanel">
+  <div class="sp-head">
+    <span class="sp-head-title">Customizações</span>
+    <button class="sp-close" onclick="toggleSettings()">✕</button>
+  </div>
+  <div class="sp-content">
+    <div class="sp-section">
+      <span class="sp-label">Tema de Cor</span>
+      <div class="sp-options" id="themeOptions"></div>
+    </div>
+    <div class="sp-section">
+      <span class="sp-label">Fonte</span>
+      <div class="sp-options" id="fontOptions"></div>
+    </div>
+    <div class="sp-section">
+      <span class="sp-label">Tamanho do Texto — <span id="textSizeVal"></span>%</span>
+      <div class="sp-range-row">
+        <input type="range" min="80" max="130" id="textSizeRange" oninput="onTextSize(this.value)"/>
+        <span class="sp-range-val" id="textSizeDisp"></span>
+      </div>
+    </div>
+    <div class="sp-section">
+      <span class="sp-label">Velocidade do Texto</span>
+      <div class="sp-options" id="textSpeedOptions"></div>
+    </div>
+    <div class="sp-divider"></div>
+    <div class="sp-section">
+      <span class="sp-label">Efeitos Visuais</span>
+      <div class="sp-options">
+        <button class="opt-btn" id="bloodBtn"    onclick="toggleBlood()">Gotas de Sangue</button>
+        <button class="opt-btn" id="particleBtn" onclick="toggleParticles()">Partículas</button>
+      </div>
+    </div>
+    <div class="sp-divider"></div>
+    <div class="sp-section" style="display:flex;flex-direction:column;gap:0.5rem">
+      <button class="opt-btn sp-full-btn btn-ghost" onclick="resetSettings()">Restaurar Padrões</button>
+      <div>
+        <button class="btn-ghost-danger sp-full-btn" id="resetProgressBtn" onclick="showResetConfirm()">✝ Resetar Progresso</button>
+        <div id="resetConfirmBox">
+          <p>Todo o progresso será perdido. Confirma?</p>
+          <div class="confirm-btns">
+            <button class="btn-ghost-danger sp-full-btn" onclick="executeResetProgress()">✝ Confirmar</button>
+            <button class="opt-btn sp-full-btn btn-ghost" onclick="hideResetConfirm()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sp-version">um réquiem para deus · v1.2 · livro primeiro</div>
+</div>
+
+<!-- ══ DEATH OVERLAY ════════════════════════════════════════════════ -->
+<div class="death-overlay" id="deathOverlay">
+  <h1 class="death-title">VOCÊ PERECEU</h1>
+  <p class="death-subtitle">"A marca ainda pulsa. A morte não pode reclamá-la."</p>
+  <button class="death-btn" onclick="respawn()">† Reacender a Chama †</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// GAME DATA
+// ═══════════════════════════════════════════════════════════════════
+const ARCS = [
+  {id:'arc-1',title:'A Marca e o Campo dos Mortos',
+   desc:'Um guerreiro desperta entre cadáveres com uma marca que não foi gravada — ela nasceu. O que o aguarda não é uma estrada. É um chamado.',order:1},
+  {id:'arc-2',title:'Cvstodia — A Cidade da Expiação',
+   desc:'Além das muralhas onde o Milagre caiu, os pecados pesam como correntes de ferro. A confissão é lei. O silêncio é condenação.',order:2},
+];
+
+const ENEMIES = {
+  carniceiro:{
+    name:'Carniceiro do Campo',
+    desc:'Um soldado sobrevivente do massacre. Seus olhos não carregam mais humanidade — apenas a obrigação de completar uma ordem que ninguém mais lembra de ter dado.',
+    hp:65,maxHp:65,dmg:[16,24],parrySpeed:0.007,svgColor:'#3a1010',
+    attacks:[
+      'O Carniceiro desfere um golpe amplo, sem elegância.',
+      'Uma estocada direta. Treinada em mil batalhas sem nome.',
+      'Ele avança com o peso de alguém que não tem mais nada a perder.',
+      'A lâmina cai com a força bruta de quem não conhece outra linguagem.',
+    ]
+  },
+  guarda:{
+    name:'Guarda do Tribunal Sagrado',
+    desc:'Silencioso. Movido não por ódio, mas por fé absoluta no Inquisidor e em tudo que as pedras de Cvstodia representam.',
+    hp:85,maxHp:85,dmg:[20,30],parrySpeed:0.0095,svgColor:'#1a1a3a',
+    attacks:[
+      'O guarda golpeia com precisão ritualística.',
+      'Um movimento treinado nas câmaras sagradas de Cvstodia.',
+      'A lâmina cai com o peso da fé inquestionável.',
+      'Sem palavras. Apenas o gesto limpo de quem age em nome do Milagre.',
+    ]
+  }
+};
+
+const SCENES = [
+// ══ ARCO 1 ══════════════════════════════════════════════════════════
+{id:'arc1-s1',arcId:'arc-1',chapter:'Capítulo I',title:'O Despertar',
+ text:`A escuridão é total. O cheiro de sangue coagulado e terra úmida preenche seus pulmões quando você retorna à consciência.
+
+Você está deitado sobre cadáveres — companheiros, reconhece pelos fragmentos de armadura. A batalha terminou. Você não deveria estar vivo.
+
+Na palma da sua mão esquerda, uma marca arde como brasa enterrada na carne. Um símbolo que não existia antes do combate. Ela pulsa como um coração separado do seu — cadenciado, paciente, antigo.
+
+Ao longe, tochas se aproximam. Vozes graves. Eles vêm para garantir que nenhum sobreviveu. O Milagre sempre cobra o que é seu.`,
+ choices:[
+  {id:'c1',text:'Fechar os olhos. Honrar os mortos com o seu silêncio e aguardar.',next:'arc1-s2',karma:8,
+   note:'A paciência dos mortos exige testemunhas vivas — e a marca aprecia quem respeita essa distinção.'},
+  {id:'c2',text:'Levantar. Se têm de morrer, que morram pela sua mão.',next:'arc1-s3',karma:-8,combat:'carniceiro',
+   note:'O Milagre contabiliza os que matam por sobrevivência. Não os absolve — apenas os registra.'},
+ ]},
+
+{id:'arc1-s2',arcId:'arc-1',chapter:'Capítulo I',title:'A Passagem dos Carniceiros',
+ text:`Você controla a respiração até ela desaparecer. Os passos se aproximam. O peso de um soldado pisa sobre o braço de um camarada morto — o estalo do osso ressoa no silêncio como uma confissão.
+
+"Todos mortos. Como ordenado pelo Milagre."
+
+Eles passam. Você aguarda até que o último reflexo de tocha suma entre as árvores.
+
+A marca na sua mão queima com uma intensidade diferente agora. Como se aprovasse sua paciência. Ou como se a alimentasse para algo maior que você ainda não consegue nomear.
+
+Você se levanta. Uma espada cravada no chão a poucos metros — pesada, de lâmina larga com escritas que não reconhece. Não pertencia a nenhum dos seus.`,
+ choices:[
+  {id:'c1',text:'Deixar a espada. Ela carrega a alma de quem a abandonou.',next:'arc1-s5',karma:8,
+   note:'O abandono inscrito no ferro não se transfere ao próximo portador — mas o peso, sim.'},
+  {id:'c2',text:'Tomar a espada. Os mortos não têm uso para lâminas.',next:'arc1-s5',karma:-6,
+   note:'Ferramentas sem dono pertencem à próxima mão. Essa lei precede qualquer Milagre.'},
+ ]},
+
+{id:'arc1-s3',arcId:'arc-1',chapter:'Capítulo I',title:'Sangue sobre Sangue',
+ text:`Você se levanta antes que percebam.
+
+Três quedas. Rápidas como a memória de algo que você não aprendeu — apenas descobriu que sabia.
+
+Quando termina, há corpos novos entre os antigos. Suas mãos tremem. Não de medo.
+
+Um dos soldados ainda respira — jovem, não mais que dezesseis anos. Ele te olha com olhos que ainda não aprenderam a odiar. Só a entregar o que foi pedido.
+
+A marca na sua mão pulsa mais forte diante dele.`,
+ choices:[
+  {id:'c1',text:'Poupar o jovem. Ele não escolheu estar aqui.',next:'arc1-s5',karma:15,
+   note:'Poupar o instrumento não redime quem o enviou — mas redime quem o devolveu ao mundo.'},
+  {id:'c2',text:'Terminar o que começou. Testemunhas são um luxo que não existe.',next:'arc1-s5',karma:-20,
+   note:'A eficiência sem piedade é o idioma do Milagre. Isso não é um elogio — é um aviso.'},
+ ]},
+
+{id:'arc1-s5',arcId:'arc-1',chapter:'Capítulo II',title:'O Eremita da Torre',
+ text:`Você caminha por horas através de uma floresta que parece mais morta a cada passo — não como algo que apodreceu, mas como algo que foi expiado de sua própria vida.
+
+Uma torre de pedra negra surge entre as árvores. Uma luz fraca e irregular pisca na janela mais alta, como uma chama que se recusa a se apagar por princípio.
+
+O velho que abre a porta tem olhos como carvão umedecido. Ele olha para a sua mão antes de olhar para o seu rosto.
+
+"A marca," ele diz, sem cumprimento, sem surpresa. "Você é o segundo este ano."
+
+Ele suspira como quem carrega o peso de uma história que ninguém mais quer ouvir. "Então você tem escolhas a fazer. Não sobre sobreviver — a marca cuida disso. Mas sobre o que você se tornará enquanto sobrevive."`,
+ choices:[
+  {id:'c1',text:'"Quero entender o que sou agora. O que a marca fez comigo."',next:'arc1-s6',karma:8,
+   note:'Compreender a ferida antes de usá-la é o único ato que ainda a mantém sua.'},
+  {id:'c2',text:'"Quero saber como usá-la. Entender é luxo de quem não precisa sobreviver."',next:'arc1-s6',karma:-8,
+   note:'O poder mal compreendido não pertence ao portador — pertence ao que o gravou.'},
+ ]},
+
+{id:'arc1-s6',arcId:'arc-1',chapter:'Capítulo II',title:'A Verdade da Marca',
+ text:`O velho acende uma vela e aponta para a sua mão. No calor da luz, a marca revela mais detalhes — não é um único símbolo, são vários sobrepostos, como cicatrizes sobre cicatrizes.
+
+"Ela não foi gravada em você," ele diz. "Nasceu de você. Do momento exato em que você escolheu continuar vivo quando todos ao redor morriam. O Milagre marcou os sobreviventes de todo o grande massacre — não como bênção. Como contagem."
+
+Ele coloca sobre a mesa um pergaminho antigo, manchado de marrom. Tinta ou sangue, impossível saber ao certo.
+
+"Os marcados não envelhecem. Não da forma normal. Mas atraem o que habita entre os mundos. Demônios, em algumas línguas. Penitentes perdidos, em outras."
+
+Ao longe, um uivo errado — longo demais, em tom que nenhum animal produz.
+
+"Eles já sabem que você está aqui. Parta antes do amanhecer."`,
+ choices:[
+  {id:'c1',text:'Agradecer e partir imediatamente. O perigo é real.',next:'arc1-end',karma:6,
+   note:'Proteger o inocente do que você carrega é o único ato de honra ainda disponível.'},
+  {id:'c2',text:'Ignorar o aviso e ficar até o amanhecer. O cansaço pesa mais.',next:'arc1-end',karma:-8,
+   note:'O cansaço que te prende pode custar ao velho tudo que ele ainda tem para dar.'},
+ ]},
+
+{id:'arc1-end',arcId:'arc-1',chapter:'Capítulo II',title:'O Limiar',
+ text:`Você parte com a escuridão ainda pesada sobre o mundo.
+
+A marca na sua mão não arde mais. Ela pulsa — cadenciada, paciente, como algo que aprendeu a contar o tempo à sua própria maneira.
+
+O velho ficou na porta até você desaparecer entre as árvores. Você não olhou para trás.
+
+À frente: cidades que não te conhecem, estradas que não te devem nada, e algo que te segue com passos que não fazem barulho — algo atraído pela marca, como uma prece atraída por um altar que ainda não foi erguido.
+
+O primeiro arco se fecha. Ao norte, dizem, existe uma cidade onde os pecados têm peso e os que carregam a marca são chamados pelo Milagre para um propósito que nenhum vivo ainda soube recusar.`,
+ choices:[],isEndScene:true,endingType:'arc'},
+
+// ══ ARCO 2 ══════════════════════════════════════════════════════════
+{id:'arc2-s1',arcId:'arc-2',chapter:'Capítulo III',title:'A Cidade da Expiação',
+ text:`As muralhas de Cvstodia erguem-se cinzentas e eternas contra um céu que parece ter desaprendido como clarear.
+
+Os cidadãos caminham em procissões silenciosas. Alguns carregam pedras amarradas ao pescoço. Outros se movem em genuflexão perpétua, os joelhos já pedra. Nenhum olha para cima — olhar para cima é presumir graça que não foi concedida.
+
+É o lugar onde o Milagre caiu pela primeira vez. Onde Deus sangrou.
+
+Um monge para diante de você. Seus olhos descem direto para a marca na sua mão — como se soubesse exatamente onde olhar.
+
+"Você não é daqui," ele diz. Não é uma acusação. É uma sentença com peso de pedra. "O que te trouxe até as portas do Milagre?"`,
+ choices:[
+  {id:'c1',text:'"A culpa. Carreguei coisas que não posso mais carregar sozinho."',next:'arc2-s2',karma:10,
+   note:'A culpa confessada em voz alta perde metade do peso. Cvstodia sabe disso — e considera.'},
+  {id:'c2',text:'"O desprezo. Vim ver se o que dizem desta cidade tem alguma substância."',next:'arc2-s2',karma:-10,
+   note:'O desprezo é o verniz que os covardes passam sobre o medo que não conseguem admitir.'},
+ ]},
+
+{id:'arc2-s2',arcId:'arc-2',chapter:'Capítulo III',title:'O Tribunal dos Pecados',
+ text:`O monge te conduz ao centro de Cvstodia, onde uma estrutura de pedra preta funciona simultaneamente como tribunal, confessionário e câmara de expiação.
+
+Uma figura encoberta por vestes que parecem ter sido tecidas de cinzas — o Inquisidor do Milagre — ocupa um trono cujos braços são ossos fundidos com ferro enferrujado.
+
+"Todo aquele que adentra Cvstodia carrega um pecado não confessado," a figura declara, sem olhar para você. "Os muros identificam os que falam a verdade dos que mentem. A marca identifica os que carregam o peso dos que a enterraram."
+
+Os olhos encobertos finalmente descem para a sua mão.
+
+"O que você traz?"
+
+A marca queima. Como se já soubesse a resposta — e estivesse te pedindo para não trair ela.`,
+ choices:[
+  {id:'c1',text:'Confessar o que aconteceu no campo de batalha. Tudo. Sem omitir nada.',next:'arc2-s3',karma:20,
+   note:'A confissão completa é o único documento que os muros de Cvstodia não rejeitam.'},
+  {id:'c2',text:'Mentir. Inventar um pecado menor, palatável, administrável.',next:'arc2-s4',karma:-15,combat:'guarda',
+   note:'A mentira palatável ainda é mentira — e as pedras de Cvstodia têm memória muito longa.'},
+ ]},
+
+{id:'arc2-s3',arcId:'arc-2',chapter:'Capítulo III',title:'A Confissão',
+ text:`As palavras saem com o peso de algo que foi carregado longe demais. Você não as havia dito em voz alta antes. Talvez nunca tenha acreditado que precisaria.
+
+O Inquisidor permanece imóvel durante toda a confissão. Quando você termina, o silêncio dura o suficiente para parecer um julgamento por si só.
+
+"Raridade," ele finalmente diz, e é possível detectar algo próximo a respeito na voz encoberta. "Alguém que confessa o que realmente fez, não o que é conveniente ter feito."
+
+Ele se levanta — mais alto do que parecia sentado — e desce os degraus do trono com passos que não fazem barulho.
+
+"Sua penitência não será açoite nem corrente. Será serviço. Há algo nas catacumbas sob esta cidade que somente alguém com sua marca pode alcançar — e que cresce a cada noite que não é confrontado."`,
+ choices:[
+  {id:'c1',text:'Aceitar a penitência sem questionar. A dívida existe.',next:'arc2-s5',karma:12,
+   note:'Aceitar a dívida sem negociá-la é a única moeda que o Milagre reconhece como legítima.'},
+  {id:'c2',text:'Aceitar apenas como meio para um fim. A palavra não vincula você.',next:'arc2-s5',karma:-8,
+   note:'Toda palavra dada sem intenção é uma corrente que se enrosca de volta na garganta.'},
+ ]},
+
+{id:'arc2-s4',arcId:'arc-2',chapter:'Capítulo III',title:'A Mentira Detectada',
+ text:`O Inquisidor não se move. Mas algo no ar de Cvstodia muda — como se as próprias pedras reconhecessem a falsidade e a rejeitassem.
+
+"Você mente," ele diz. Simples. Definitivo. Sem raiva.
+
+As paredes parecem apertar levemente. Dois guardas emergem das sombras — não ameaçadores, apenas presentes como declaração.
+
+"Em Cvstodia, a mentira é o pecado que anula todos os outros. Porque ela nega a possibilidade de expiação. Não há penitência para aquele que não admite o que expia."
+
+Os olhos encobertos fixam a marca.
+
+"Mas essa marca não pode mentir. Ela sempre fala o que você não fala. Tentaremos novamente."
+
+Um dos guardas dá um passo à frente.`,
+ choices:[
+  {id:'c1',text:'Desta vez, confessar a verdade. Ela pesa, mas existe.',next:'arc2-s3',karma:10,
+   note:'A verdade tardia ainda vale mais do que a mentira pontual — mesmo em Cvstodia.'},
+  {id:'c2',text:'Recusar. Nenhum tribunal tem jurisdição sobre a marca ou sobre você.',next:'arc2-s5',karma:-20,
+   note:'Rejeitar o tribunal não o apaga — apenas garante que ele te acompanhe até o final.'},
+ ]},
+
+{id:'arc2-s5',arcId:'arc-2',chapter:'Capítulo IV',title:'As Catacumbas do Milagre',
+ text:`As catacumbas sob Cvstodia são mais antigas que a cidade sobre elas — antigas como o Milagre em si, ou como o que veio antes do Milagre e foi enterrado para que o Milagre pudesse começar.
+
+O Inquisidor te guia pessoalmente até a entrada: uma abertura no chão da catedral maior, por onde sobe um calor que não tem fonte lógica — e um silêncio que parece não ser ausência de som, mas presença de algo que prefere não ser ouvido.
+
+"Há algo que dorme aqui embaixo," ele diz, e pela primeira vez sua voz carrega algo próximo a incerteza. "Não sabemos se é um ser, um pecado cristalizado pelo peso de séculos de expiação, ou simplesmente a memória de algo que o Milagre nunca terminou de processar."
+
+Ele coloca nas suas mãos uma lanterna de ferro com chama azul. A marca reage — pulsa em sincronia com a chama como se as reconhecesse mutuamente.
+
+"O que você encontrar lá embaixo vai reconhecer a marca. O que você faz com esse reconhecimento — isso é sua penitência."`,
+ choices:[
+  {id:'c1',text:'Descer com cuidado. O que dorme antigo merece ser abordado com respeito.',next:'arc2-end',karma:8,
+   note:'O que dormiu séculos não distingue respeito de fraqueza — mas registra ambos com precisão.'},
+  {id:'c2',text:'Descer com força. Tudo que dorme pode ser desperto — e derrotado.',next:'arc2-end',karma:-8,
+   note:'A força sem compreensão é o erro que o Milagre repete há gerações sem reconhecer.'},
+ ]},
+
+{id:'arc2-end',arcId:'arc-2',chapter:'Capítulo IV',title:'O Abismo que Responde',
+ text:`As catacumbas te recebem com o silêncio de algo que esteve esperando.
+
+A chama azul da lanterna oscila sem vento. A marca na sua mão pulsa em um ritmo diferente agora — não mais o batimento de um coração separado, mas a ressonância de algo que reconhece seu igual nas profundezas.
+
+Você desce mais fundo do que o Inquisidor descreveu. Mais fundo do que a planta da catedral permite. E em algum ponto entre a pedra mais antiga e o calor sem fonte, você sente — não vê, não ouve, sente — que há algo aqui que não é apenas penitência cristalizada.
+
+É uma presença. Ela conhece seu nome. Não o nome que te deram — o nome que a marca carrega.
+
+O segundo arco se fecha nas profundezas de Cvstodia. O que jaz nas catacumbas aguardou séculos. Pode aguardar mais um arco.`,
+ choices:[],isEndScene:true,endingType:'arc'},
+];
+
+const getScene       = id    => SCENES.find(s => s.id    === id);
+const getArc         = id    => ARCS.find  (a => a.id    === id);
+const firstSceneOfArc= arcId => SCENES.find(s => s.arcId === arcId);
+
+// ═══════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════
+const INIT_STATE = {
+  currentSceneId:'arc1-s1',currentArcId:'arc-1',
+  karma:0,fervor:50,hp:100,
+  unlockedArcs:['arc-1'],completedArcs:[],
+  scenesInArc:0  // persisted now
+};
+const INIT_SETTINGS = {
+  colorTheme:'dark',font:'serif',
+  textSize:100,bloodDrops:true,particles:true,textSpeed:'normal'
+};
+
+let G = JSON.parse(localStorage.getItem('rpg-state')   || JSON.stringify(INIT_STATE));
+let S = JSON.parse(localStorage.getItem('rpg-settings') || JSON.stringify(INIT_SETTINGS));
+
+// Migrate old saves
+G.fervor     = G.fervor     ?? 50;
+G.hp         = G.hp         ?? 100;
+G.scenesInArc= G.scenesInArc ?? 0;
+
+let settingsOpen  = false;
+let revealTimer   = null;
+let revealDone    = false;
+let pendingOnDone = null;
+
+const saveG = () => localStorage.setItem('rpg-state',   JSON.stringify(G));
+const saveS = () => localStorage.setItem('rpg-settings', JSON.stringify(S));
+
+// ═══════════════════════════════════════════════════════════════════
+// THEMES & FONTS
+// ═══════════════════════════════════════════════════════════════════
+const THEMES = {
+  dark: {bg:'#05040a',bg2:'#09080f',fg:'#c9b692',border:'rgba(155,115,65,0.14)',borderHi:'rgba(175,135,75,0.40)',red:'#781212',redHi:'#9e1a1a',label:'Sombrio'},
+  blood:{bg:'#120004',bg2:'#1a0008',fg:'#e2beba',border:'rgba(188,98,88,0.14)',borderHi:'rgba(198,108,98,0.40)',red:'#b40000',redHi:'#d20000',label:'Sangue'},
+  ash:  {bg:'#0b0b12',bg2:'#101018',fg:'#ceccc6',border:'rgba(165,165,180,0.10)',borderHi:'rgba(175,175,195,0.30)',red:'#4c4c68',redHi:'#646484',label:'Cinzas'},
+  gold: {bg:'#070500',bg2:'#0d0b00',fg:'#eedea0',border:'rgba(188,148,28,0.12)',borderHi:'rgba(198,158,38,0.38)',red:'#9e6e06',redHi:'#c68c08',label:'Dourado'},
+  wine: {bg:'#080010',bg2:'#0d0018',fg:'#ceb8d2',border:'rgba(135,78,158,0.12)',borderHi:'rgba(155,88,178,0.35)',red:'#661058',redHi:'#861878',label:'Vinho'},
+};
+const FONTS = {
+  serif:  {family:'"IM Fell English","Crimson Text",Georgia,serif',label:'Gótica'},
+  crimson:{family:'"Crimson Text",Georgia,serif',label:'Clássica'},
+  sans:   {family:'"Segoe UI",system-ui,sans-serif',label:'Moderna'},
+  mono:   {family:'"Courier New",monospace',label:'Mono'},
+};
+const TEXT_SPEEDS = {
+  slow:  {delay:105,label:'Lento'},
+  normal:{delay:68, label:'Normal'},
+  fast:  {delay:36, label:'Rápido'},
+};
+
+function applyTheme() {
+  const t = THEMES[S.colorTheme] || THEMES.dark;
+  const r = document.documentElement.style;
+  r.setProperty('--bg',        t.bg);
+  r.setProperty('--bg2',       t.bg2);
+  r.setProperty('--border',    t.border);
+  r.setProperty('--border-hi', t.borderHi);
+  r.setProperty('--fg',        t.fg);
+  r.setProperty('--fg-dim',    t.fg + '8a');
+  r.setProperty('--fg-muted',  t.fg + '4a');
+  r.setProperty('--red',       t.red);
+  r.setProperty('--red-hi',    t.redHi);
+  r.setProperty('--red-glow',  t.red + '2e');
+  document.body.style.background = t.bg;
+}
+const applyFont     = () => { document.body.style.fontFamily = (FONTS[S.font]     || FONTS.serif).family; };
+const applyTextSize = () => { document.body.style.fontSize   = S.textSize + '%'; };
+
+// ═══════════════════════════════════════════════════════════════════
+// KARMA
+// ═══════════════════════════════════════════════════════════════════
+function karmaInfo(k) {
+  if (k >= 60)  return {color:'#EFD020', label:'Redenção'};
+  if (k >= 25)  return {color:'#C8A040', label:'Honra'};
+  if (k >= 0)   return {color:'#888880', label:'Neutro'};
+  if (k >= -25) return {color:'#B03838', label:'Sombra'};
+  if (k >= -60) return {color:'#8a1212', label:'Corrupção'};
+  return               {color:'#360830', label:'Condenação'};
+}
+function updateKarmaUI() {
+  const ki = karmaInfo(G.karma);
+  ['karmaDot','combatKarmaDot'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el){el.style.background=ki.color;el.style.boxShadow=`0 0 10px ${ki.color}88`}
+  });
+  ['karmaLabel','combatKarmaLabel'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el){el.textContent=ki.label;el.style.color=ki.color}
+  });
+  ['karmaNum','combatKarmaNum'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.textContent = G.karma > 0 ? `+${G.karma}` : `${G.karma}`;
+  });
+}
+function updateFervorUI() {
+  ['fervorText','combatFervorText'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.textContent = Math.max(0, G.fervor);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SCREEN MANAGEMENT
+// ═══════════════════════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const btn = document.getElementById('settingsBtn');
+  if(btn){ if(id==='opening') btn.classList.remove('visible'); else btn.classList.add('visible'); }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// INTRO
+// ═══════════════════════════════════════════════════════════════════
+function advanceToTitle() {
+  const lore = document.getElementById('introLore');
+  const main = document.getElementById('introMain');
+  if(lore){ lore.style.transition='opacity 0.65s ease'; lore.style.opacity='0'; setTimeout(()=>lore.style.display='none', 680); }
+  if(main){
+    setTimeout(()=>{
+      main.style.display='flex'; main.style.opacity='0'; main.style.transition='opacity 0.7s ease';
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{ main.style.opacity='1'; }));
+    }, 700);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// WORD REVEAL
+// ═══════════════════════════════════════════════════════════════════
+function revealText(text, container, onDone) {
+  container.innerHTML=''; revealDone=false; pendingOnDone=onDone;
+  if(revealTimer) clearTimeout(revealTimer);
+  const BASE = (TEXT_SPEEDS[S.textSpeed] || TEXT_SPEEDS.normal).delay;
+  const allSpans = [];
+  text.split('\n').forEach((line, li) => {
+    if(li > 0){
+      if(line.trim()===''){
+        container.appendChild(document.createElement('br'));
+        container.appendChild(document.createElement('br'));
+        return;
+      }
+    }
+    if(!line.trim()) return;
+    line.split(' ').forEach((word, wi) => {
+      if(wi > 0) container.appendChild(document.createTextNode(' '));
+      const sp = document.createElement('span');
+      sp.textContent = word; sp.className = 'rw';
+      container.appendChild(sp); allSpans.push(sp);
+    });
+  });
+  let idx = 0;
+  function step() {
+    if(idx >= allSpans.length){ revealDone=true; if(pendingOnDone) setTimeout(pendingOnDone,350); return; }
+    allSpans[idx].classList.add('shown');
+    const w = allSpans[idx].textContent; idx++;
+    let d = BASE;
+    if(w.match(/[.!?]$/)) d = BASE*2.4;
+    else if(w.match(/[,;:]$/)) d = BASE*1.4;
+    revealTimer = setTimeout(step, d);
+  }
+  step();
+}
+function skipReveal() {
+  if(revealDone) return false;
+  clearTimeout(revealTimer); revealDone=true;
+  const c = document.getElementById('sceneText');
+  if(c) c.querySelectorAll('.rw').forEach(s=>{s.classList.add('shown');s.style.transition='none'});
+  if(pendingOnDone) setTimeout(pendingOnDone, 100);
+  return true;
+}
+function onTextClick(){ skipReveal(); }
+
+// ═══════════════════════════════════════════════════════════════════
+// GAME FLOW
+// ═══════════════════════════════════════════════════════════════════
+function startGame() {
+  showScreen('game');
+  renderScene(G.currentSceneId);
+}
+
+function renderScene(id) {
+  const scene = getScene(id);
+  if(!scene) return;
+  G.currentSceneId = id; G.currentArcId = scene.arcId; saveG();
+  updateKarmaUI(); updateFervorUI();
+  document.getElementById('sceneTitle').textContent = scene.title || '';
+  document.getElementById('sceneMeta').textContent  = scene.chapter || '';
+  const ch = document.getElementById('choices');
+  if(ch){ch.style.display='none'; ch.innerHTML='';}
+  const sh = document.getElementById('skipHint');
+  if(sh) sh.style.display='block';
+
+  // Build full text: base + karma-reactive NPC addition
+  const reaction  = getKarmaReaction(id);
+  const fullText  = reaction ? scene.text + reaction : scene.text;
+
+  revealText(fullText, document.getElementById('sceneText'), () => {
+    if(sh) sh.style.display='none';
+    if(scene.isEndScene && scene.endingType==='arc') finishArc(scene);
+    else showChoices(scene);
+  });
+}
+
+function showChoices(scene) {
+  if(!scene || !scene.choices.length) return;
+  const el = document.getElementById('choices');
+  if(!el) return;
+  el.innerHTML = `<div class="choices-header">✦ Escolha ✦</div>`;
+  scene.choices.forEach(ch => {
+    const kc    = ch.karma > 0 ? 'karma-good' : ch.karma < 0 ? 'karma-bad' : '';
+    const kSign = ch.karma > 0 ? `+${ch.karma}` : `${ch.karma}`;
+    const btn   = document.createElement('button');
+    btn.className = 'choice-btn' + (kc ? ' '+kc : '');
+    btn.innerHTML = `
+      <div class="choice-top">
+        <span class="choice-text">${ch.text}</span>
+        ${ch.karma!==0 ? `<span class="choice-karma">KARMA ${kSign}</span>` : ''}
+      </div>
+      ${ch.note ? `<div class="choice-note">${ch.note}</div>` : ''}
+    `;
+    btn.onclick = () => makeChoice(ch);
+    el.appendChild(btn);
+  });
+  el.style.display = 'flex';
+}
+
+function makeChoice(ch) {
+  G.karma += ch.karma;
+  G.scenesInArc = (G.scenesInArc || 0) + 1;
+  saveG();
+  if(S.particles) spawnParticles();
+
+  if(ch.combat) {
+    const diff = karmaDifficulty();
+    // Positive karma can avoid combat entirely
+    if(diff.avoidChance > 0 && Math.random() < diff.avoidChance) {
+      // Combat avoided — show narrative reason then go directly to next scene
+      const avoidLines = [
+        'O inimigo te olha por um momento longo — e algo o faz desviar o olhar. Ele passa.',
+        'O inimigo levanta a arma, hesita, e recua. A marca pulsa uma vez, suave. Ele sente.',
+        'Por um instante, os olhos do inimigo encontram os seus — e ele escolhe não continuar.',
+        'A marca irradia algo que o inimigo não consegue nomear. Ele para. Depois vai embora.',
+      ];
+      const line = avoidLines[Math.floor(Math.random()*avoidLines.length)];
+      // Show the avoidance in the scene text briefly before advancing
+      const sceneText = document.getElementById('sceneText');
+      if(sceneText){
+        const div = document.createElement('div');
+        div.style.cssText = 'margin-top:1.2rem;padding:0.8rem 1rem;border-left:2px solid rgba(175,135,75,0.4);font-style:italic;color:rgba(201,182,146,0.65);font-family:"IM Fell English",serif;font-size:0.95rem;line-height:1.7';
+        div.textContent = line;
+        sceneText.appendChild(div);
+      }
+      setTimeout(()=>renderScene(ch.next), 2000);
+      return;
+    }
+    startCombat(ch.combat, ch.next, G.currentSceneId);
+  } else {
+    renderScene(ch.next);
+  }
+}
+
+function finishArc(scene) {
+  const arcId = scene.arcId;
+  if(!G.completedArcs.includes(arcId)) G.completedArcs.push(arcId);
+  const n = parseInt(arcId.replace('arc-',''));
+  const nextId = `arc-${n+1}`;
+  if(ARCS.find(a=>a.id===nextId) && !G.unlockedArcs.includes(nextId)) G.unlockedArcs.push(nextId);
+  G.scenesInArc = (G.scenesInArc || 0) + 1;
+  // Partial fervor recovery between arcs
+  G.fervor = Math.min(G.fervor + 15, 50);
+  saveG();
+  showArcEnd(arcId);
+}
+
+function showArcEnd(arcId) {
+  const arc = getArc(arcId);
+  const ki  = karmaInfo(G.karma);
+  document.getElementById('endTitle').textContent  = arc ? arc.title : `Arco ${arcId}`;
+  const kEl = document.getElementById('endKarma');
+  if(kEl){kEl.textContent = G.karma > 0 ? `+${G.karma}` : `${G.karma}`; kEl.style.color = ki.color;}
+  document.getElementById('endScenes').textContent = G.scenesInArc || 0;
+  const aEl = document.getElementById('endAlign');
+  if(aEl){aEl.textContent=ki.label; aEl.style.color=ki.color;}
+  showScreen('arcEnd');
+}
+
+function continueToMenu(){ renderArcMenu(); showScreen('arcMenu'); }
+
+function renderArcMenu() {
+  const el = document.getElementById('arcCards');
+  if(!el) return;
+  el.innerHTML='';
+  ARCS.forEach(arc => {
+    const unlocked  = G.unlockedArcs.includes(arc.id);
+    const completed = G.completedArcs.includes(arc.id);
+    const card = document.createElement('button');
+    card.className = 'arc-card'; card.disabled = !unlocked;
+    card.innerHTML = `
+      <span class="arc-card-status ${completed?'completed':''}">${completed?'✓ COMPLETO':unlocked?'● DISPONÍVEL':'○ BLOQUEADO'}</span>
+      <div class="arc-card-order">Arco ${arc.order}</div>
+      <div class="arc-card-title">${unlocked ? arc.title : '???'}</div>
+      <div class="arc-card-desc">${unlocked ? arc.desc : 'Complete o arco anterior para desbloquear.'}</div>
+    `;
+    if(unlocked){
+      card.onclick = () => {
+        const first = firstSceneOfArc(arc.id);
+        if(first){
+          G.currentSceneId=first.id; G.currentArcId=arc.id;
+          G.scenesInArc=0; saveG();
+          showScreen('game'); renderScene(first.id);
+        }
+      };
+    }
+    el.appendChild(card);
+  });
+}
+
+// New game with inline confirm
+function showNewGameConfirm(){
+  document.getElementById('newGameBtn').style.display='none';
+  document.getElementById('newGameConfirmBox').style.display='flex';
+}
+function hideNewGameConfirm(){
+  document.getElementById('newGameConfirmBox').style.display='none';
+  document.getElementById('newGameBtn').style.display='block';
+}
+function executeNewGame(){
+  hideNewGameConfirm();
+  G={...INIT_STATE}; saveG();
+  showScreen('game'); renderScene(G.currentSceneId);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// KARMA DIFFICULTY ENGINE
+// ═══════════════════════════════════════════════════════════════════
+
+// Returns a modifier object based on current karma tier.
+// Every number here was tuned so the game remains "torture"
+// at all tiers — positive karma just makes it survivable torture.
+function karmaDifficulty() {
+  const k = G.karma;
+  if (k >= 60)  return {
+    tier:'redenção',
+    enemyHpMult:  0.78,  // enemy has 22% less HP
+    enemyDmgMult: 0.78,  // enemy hits 22% softer
+    parryBonus:   0.09,  // parry perfect zone is wider
+    healBonus:    22,    // more HP recovered on victory
+    fervorBonus:  12,
+    fleeKarma:    4,     // smaller flee penalty
+    avoidChance:  0.45,  // 45% chance to avoid combat entirely
+    label: 'A marca irradia algo próximo à graça. O mundo hesita antes de te atacar.'
+  };
+  if (k >= 25)  return {
+    tier:'honra',
+    enemyHpMult:  0.88,
+    enemyDmgMult: 0.88,
+    parryBonus:   0.05,
+    healBonus:    12,
+    fervorBonus:  8,
+    fleeKarma:    7,
+    avoidChance:  0.22,
+    label: 'Algo na sua postura ainda carrega peso humano. Alguns inimigos reconhecem isso.'
+  };
+  if (k >= 0)   return {
+    tier:'neutro',
+    enemyHpMult:  1.00,
+    enemyDmgMult: 1.00,
+    parryBonus:   0.00,
+    healBonus:    0,
+    fervorBonus:  0,
+    fleeKarma:    10,
+    avoidChance:  0.00,
+    label: null
+  };
+  if (k >= -25) return {
+    tier:'sombra',
+    enemyHpMult:  1.14,
+    enemyDmgMult: 1.14,
+    parryBonus:  -0.05,  // parry window shrinks
+    healBonus:   -5,
+    fervorBonus: -3,
+    fleeKarma:    13,
+    avoidChance:  0.00,
+    label: 'A marca pulsa com algo que atrai a violência. Os que poderiam ignorar você, não ignoram mais.'
+  };
+  if (k >= -60) return {
+    tier:'corrupção',
+    enemyHpMult:  1.30,
+    enemyDmgMult: 1.26,
+    parryBonus:  -0.09,
+    healBonus:   -10,
+    fervorBonus: -6,
+    fleeKarma:    16,
+    avoidChance:  0.00,
+    label: 'O rastro que você deixa chega antes de você. Os inimigos entram em combate já preparados.'
+  };
+  return {
+    tier:'condenação',
+    enemyHpMult:  1.48,
+    enemyDmgMult: 1.38,
+    parryBonus:  -0.14,
+    healBonus:   -18,
+    fervorBonus: -10,
+    fleeKarma:    20,
+    avoidChance:  0.00,
+    label: 'Cada passo deixa uma mancha que o mundo inteiro consegue sentir. Não há neutralidade disponível para você.'
+  };
+}
+
+// Narrativas de mundo que surgem nas cenas baseadas no karma.
+// Positivo = NPC oferece algo. Negativo = NPC reage com hostilidade/medo.
+const KARMA_SCENE_REACTIONS = {
+  'arc1-s5': {
+    good: `\n\nO velho para antes de continuar. Algo na sua postura — ou na forma como a marca pulsa — faz ele acrescentar, quase involuntariamente: "Os que chegam aqui com a marca ainda intacta, sem tê-la usado como arma, têm uma vantagem que os outros perdem cedo. A marca reconhece intenção. Lembre disso quando o próximo combate vier."`,
+    bad:  `\n\nO velho nota algo na sua expressão — ou no padrão da marca, que pulsa de forma irregular — e recua meio passo. "Você já usou ela," ele diz, não como pergunta. "Os que chegam assim... a marca começou a mudar. E o que ela atrai vai ficar mais forte antes de você estar pronto."`
+  },
+  'arc2-s1': {
+    good: `\n\nO monge hesita, então acrescenta em voz baixa: "Há uma entrada lateral para o Tribunal. Poucos marcados chegam aqui sem deixar rastro de sangue. Os que chegam assim... o Inquisidor recebe diferente. Mencionarei seu nome antes que você entre."`,
+    bad:  `\n\nO monge afasta-se um passo. "Você chegou com peso diferente," ele murmura, olhando a marca. "As pedras desta cidade registram o que você carrega. O Inquisidor já vai saber o que você é antes de você abrir a boca."`
+  },
+  'arc2-s3': {
+    good: `\n\n"Uma última coisa," o Inquisidor diz antes de virar de costas. "Há algo nas catacumbas que responde a marcados com karma intacto de forma diferente. Não sei o que é — mas os que chegam assim voltam. Os outros, nem sempre."`,
+    bad:  `\n\nO Inquisidor pausa antes de continuar. "Os que chegam até essa penitência com a marca manchada enfrentam algo diferente nas catacumbas," ele diz, sem emoção. "Mais resistente. Como se o que dorme lá embaixo soubesse distinguir."`
+  }
+};
+
+function getKarmaReaction(sceneId) {
+  const reactions = KARMA_SCENE_REACTIONS[sceneId];
+  if (!reactions) return null;
+  if (G.karma >= 25)  return reactions.good;
+  if (G.karma <= -25) return reactions.bad;
+  return null;
+}
+
+
+let combat={active:false,enemy:null,playerHp:100,playerMaxHp:100,playerFervor:50,playerMaxFervor:50,postScene:null,preScene:null,dmgMult:1.0,parryBonus:0};
+let parryRAF=null,parryPos=0,parryDir=1;
+
+function startCombat(enemyId, nextScene, returnScene) {
+  const def  = ENEMIES[enemyId];
+  if(!def){ renderScene(nextScene); return; }
+  const diff = karmaDifficulty();
+
+  // Scale enemy stats by karma difficulty
+  combat.enemy = {
+    ...def,
+    hp:    Math.round(def.maxHp * diff.enemyHpMult),
+    maxHp: Math.round(def.maxHp * diff.enemyHpMult),
+  };
+  combat.active          = true;
+  combat.playerHp        = G.hp;
+  combat.playerFervor    = G.fervor;
+  combat.playerMaxHp     = 100;
+  combat.playerMaxFervor = 50;
+  combat.postScene       = nextScene;
+  combat.preScene        = returnScene;
+  combat.dmgMult         = diff.enemyDmgMult;
+  combat.parryBonus      = diff.parryBonus;
+
+  updateKarmaUI(); updateFervorUI(); updateCombatUI();
+
+  const log = document.getElementById('combatLog');
+  if(log){
+    log.innerHTML = `<div class="log-line log-system">† O combate começa. †</div>`;
+    if(diff.label) setTimeout(()=>addLog(diff.label,'log-system'), 420);
+  }
+  buildEnemyPortrait(def);
+  document.getElementById('enemyName').textContent = def.name;
+  document.getElementById('enemyDesc').textContent = def.desc;
+  showScreen('combat');
+}
+
+function buildEnemyPortrait(def) {
+  const el = document.getElementById('enemyPortrait');
+  if(!el) return;
+  el.innerHTML=`<svg width="50" height="64" viewBox="0 0 50 64" fill="none">
+    <rect x="1" y="1" width="48" height="62" stroke="${def.svgColor}" stroke-width="0.8" fill="none" opacity="0.42"/>
+    <line x1="25" y1="7"  x2="25" y2="57" stroke="${def.svgColor}" stroke-width="1"   opacity="0.65"/>
+    <line x1="10" y1="22" x2="40" y2="22" stroke="${def.svgColor}" stroke-width="1"   opacity="0.65"/>
+    <circle cx="25" cy="18" r="6" stroke="${def.svgColor}" stroke-width="0.7" fill="none" opacity="0.52"/>
+    <circle cx="25" cy="18" r="2" fill="${def.svgColor}" opacity="0.82"/>
+    <path d="M19 32 Q25 42 31 32" stroke="${def.svgColor}" stroke-width="0.8" fill="none" opacity="0.42"/>
+  </svg>`;
+}
+
+function updateCombatUI() {
+  if(!combat.enemy) return;
+  const ep = (combat.enemy.hp / combat.enemy.maxHp) * 100;
+  const hp = (combat.playerHp   / combat.playerMaxHp) * 100;
+  const fp = (combat.playerFervor / combat.playerMaxFervor) * 100;
+  const s  = (id,v) => { const e=document.getElementById(id); if(e) e.style.width=Math.max(0,v)+'%'; };
+  const t  = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+  s('enemyHpFill',ep);  t('enemyHpText',`${Math.max(0,combat.enemy.hp)} / ${combat.enemy.maxHp}`);
+  s('playerHpFill',hp); t('playerHpVal',`${Math.max(0,combat.playerHp)} / ${combat.playerMaxHp}`);
+  s('playerFervorFill',fp); t('playerFervorVal',`${Math.max(0,combat.playerFervor)} / ${combat.playerMaxFervor}`);
+  const fb = document.getElementById('fervorCombatBtn');
+  if(fb) fb.disabled = combat.playerFervor < 20;
+  updateKarmaUI();
+}
+
+function addLog(msg,cls){
+  const log=document.getElementById('combatLog'); if(!log) return;
+  const d=document.createElement('div');
+  d.className='log-line'+(cls?' '+cls:''); d.textContent=msg;
+  log.appendChild(d); log.scrollTop=log.scrollHeight;
+}
+
+function setActionsEnabled(on) {
+  document.querySelectorAll('.combat-btn').forEach(b => { b.disabled = !on; });
+  if(on){
+    const fb=document.getElementById('fervorCombatBtn');
+    if(fb) fb.disabled = combat.playerFervor < 20;
+  }
+}
+
+function combatAction(action) {
+  if(!combat.active) return;
+  setActionsEnabled(false);
+  if(action==='attack'){
+    const dmg=rnd(18,28); combat.enemy.hp-=dmg;
+    addLog(`Você golpeia — ${dmg} de dano.`,'log-good');
+    updateCombatUI(); setTimeout(afterPlayer,700);
+  } else if(action==='fervor'){
+    if(combat.playerFervor<20){ setActionsEnabled(true); return; }
+    const dmg=rnd(35,50); combat.playerFervor-=20; G.fervor=combat.playerFervor;
+    combat.enemy.hp-=dmg;
+    addLog(`✦ Fervor desencadeado — ${dmg} de dano. Fervor -20.`,'log-fervor');
+    if(S.particles) spawnParticles(); updateCombatUI(); setTimeout(afterPlayer,800);
+  } else if(action==='parry'){
+    addLog('Você se prepara para aparar...','log-system'); startParryGame();
+  } else if(action==='flee'){
+    const diff = karmaDifficulty();
+    G.karma -= diff.fleeKarma; saveG();
+    addLog(`Você recua nas sombras. Karma -${diff.fleeKarma}.`,'log-system');
+    setTimeout(()=>{ combat.active=false; updateKarmaUI(); showScreen('game'); renderScene(combat.preScene); },650);
+  }
+}
+
+function startParryGame(){
+  parryPos=0; parryDir=1;
+  const g=document.getElementById('parryGame'); if(g) g.style.display='flex';
+  if(parryRAF) cancelAnimationFrame(parryRAF);
+  const speed=combat.enemy.parrySpeed;
+  function animate(){
+    parryPos+=parryDir*speed;
+    if(parryPos>=1){parryPos=1;parryDir=-1;}
+    if(parryPos<=0){parryPos=0;parryDir=1;}
+    const n=document.getElementById('parryNeedle'); if(n) n.style.left=(parryPos*100)+'%';
+    parryRAF=requestAnimationFrame(animate);
+  }
+  animate();
+}
+
+function executeParry(){
+  if(parryRAF) cancelAnimationFrame(parryRAF);
+  const g=document.getElementById('parryGame'); if(g) g.style.display='none';
+
+  // Parry window adjusted by karma: positive = wider zone, negative = narrower
+  const pb     = combat.parryBonus || 0;
+  const perfect = parryPos >= (0.38 - pb) && parryPos <= (0.62 + pb);
+  const good    = parryPos >= (0.22 - pb) && parryPos <= (0.78 + pb);
+  const base    = rnd(combat.enemy.dmg[0], combat.enemy.dmg[1]);
+  const scaled  = Math.round(base * combat.dmgMult);
+
+  if(perfect){
+    const c=rnd(8,14); combat.enemy.hp-=c;
+    addLog(`⬡ APARO PERFEITO! Sem dano — contra-ataque de ${c}.`,'log-good');
+    updateCombatUI(); setTimeout(afterPlayer,800);
+  } else if(good){
+    const d=Math.floor(scaled*0.35); combat.playerHp-=d;
+    addLog(`◈ Aparo parcial. Você absorve ${d} de dano.`,'log-good');
+    updateCombatUI(); if(!checkDeath()) setTimeout(afterPlayer,800);
+  } else {
+    const d=Math.floor(scaled*1.25); combat.playerHp-=d;
+    addLog(`✗ Aparo falhou. Você sofre ${d} de dano.`,'log-bad');
+    updateCombatUI(); if(!checkDeath()) setTimeout(()=>setActionsEnabled(true),600);
+  }
+}
+
+function afterPlayer(){
+  if(combat.enemy.hp<=0){ victory(); return; }
+  const rawDmg = rnd(combat.enemy.dmg[0], combat.enemy.dmg[1]);
+  const dmg    = Math.round(rawDmg * combat.dmgMult);
+  const atk    = combat.enemy.attacks[Math.floor(Math.random()*combat.enemy.attacks.length)];
+  combat.playerHp -= dmg;
+  addLog(`${atk} — ${dmg} de dano.`,'log-bad');
+  updateCombatUI(); if(!checkDeath()) setTimeout(()=>setActionsEnabled(true),500);
+}
+
+function checkDeath(){
+  if(combat.playerHp<=0){ combat.playerHp=0; combat.active=false; setTimeout(()=>document.getElementById('deathOverlay').classList.add('active'),420); return true; }
+  return false;
+}
+
+function victory(){
+  combat.active=false;
+  const diff = karmaDifficulty();
+  G.hp     = Math.min(Math.max(combat.playerHp + 15 + diff.healBonus, combat.playerHp), 100);
+  G.fervor = Math.min(Math.max(combat.playerFervor + 10 + diff.fervorBonus, combat.playerFervor), 50);
+  saveG();
+  const healMsg = diff.healBonus > 0
+    ? `† Inimigo derrotado. A marca pulsa com algo próximo à paz. +${15+diff.healBonus} HP. †`
+    : diff.healBonus < 0
+    ? `† Inimigo derrotado. A vitória tem gosto de cinza. A cura é menor do que deveria ser. †`
+    : `† Inimigo derrotado. A marca pulsa com satisfação. †`;
+  addLog(healMsg,'log-system');
+  setTimeout(()=>{ showScreen('game'); renderScene(combat.postScene); },1200);
+}
+
+function respawn(){
+  document.getElementById('deathOverlay').classList.remove('active');
+  G.karma-=8; G.hp=60; G.fervor=30; saveG();
+  addLog('A marca te arrasta de volta. Karma -8.','log-system'); updateKarmaUI();
+  const id=Object.keys(ENEMIES).find(k=>ENEMIES[k].name===combat.enemy.name)||Object.keys(ENEMIES)[0];
+  startCombat(id,combat.postScene,combat.preScene);
+}
+
+function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+// ═══════════════════════════════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════════════════════════════
+function toggleSettings(){
+  settingsOpen=!settingsOpen;
+  document.getElementById('settingsPanel').classList.toggle('open',settingsOpen);
+  document.getElementById('settingsOverlay').classList.toggle('open',settingsOpen);
+  if(!settingsOpen){ hideResetConfirm(); }
+}
+
+function buildSettings(){
+  // themes
+  const th=document.getElementById('themeOptions'); if(th){ th.innerHTML='';
+    Object.entries(THEMES).forEach(([k,v])=>{
+      const b=document.createElement('button');
+      b.className='opt-btn'+(S.colorTheme===k?' active':'');
+      b.innerHTML=`<span class="opt-swatch" style="background:${v.red}"></span>${v.label}`;
+      b.onclick=()=>{ S.colorTheme=k; saveS(); applyTheme(); buildSettings(); };
+      th.appendChild(b);
+    });
+  }
+  // fonts
+  const fo=document.getElementById('fontOptions'); if(fo){ fo.innerHTML='';
+    Object.entries(FONTS).forEach(([k,v])=>{
+      const b=document.createElement('button');
+      b.className='opt-btn'+(S.font===k?' active':'');
+      b.style.fontFamily=v.family; b.textContent=v.label;
+      b.onclick=()=>{ S.font=k; saveS(); applyFont(); buildSettings(); };
+      fo.appendChild(b);
+    });
+  }
+  // speed
+  const sp=document.getElementById('textSpeedOptions'); if(sp){ sp.innerHTML='';
+    Object.entries(TEXT_SPEEDS).forEach(([k,v])=>{
+      const b=document.createElement('button');
+      b.className='opt-btn'+(S.textSpeed===k?' active':'');
+      b.textContent=v.label;
+      b.onclick=()=>{ S.textSpeed=k; saveS(); buildSettings(); };
+      sp.appendChild(b);
+    });
+  }
+  // range
+  const tr=document.getElementById('textSizeRange');
+  const tv=document.getElementById('textSizeVal');
+  const td=document.getElementById('textSizeDisp');
+  if(tr) tr.value=S.textSize; if(tv) tv.textContent=S.textSize; if(td) td.textContent=S.textSize;
+  // effects
+  const bb=document.getElementById('bloodBtn');
+  const pb=document.getElementById('particleBtn');
+  if(bb) bb.className='opt-btn'+(S.bloodDrops?' active':'');
+  if(pb) pb.className='opt-btn'+(S.particles?' active':'');
+}
+
+function onTextSize(v){ S.textSize=parseInt(v); saveS(); applyTextSize();
+  ['textSizeVal','textSizeDisp'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=v; }); }
+const toggleBlood     = ()=>{ S.bloodDrops=!S.bloodDrops; saveS(); buildSettings(); };
+const toggleParticles = ()=>{ S.particles =!S.particles;  saveS(); buildSettings(); };
+function resetSettings(){ S={...INIT_SETTINGS}; saveS(); applyTheme(); applyFont(); applyTextSize(); buildSettings(); }
+
+function showResetConfirm(){
+  document.getElementById('resetProgressBtn').style.display='none';
+  document.getElementById('resetConfirmBox').style.display='flex';
+}
+function hideResetConfirm(){
+  document.getElementById('resetConfirmBox').style.display='none';
+  document.getElementById('resetProgressBtn').style.display='block';
+}
+function executeResetProgress(){
+  hideResetConfirm(); toggleSettings();
+  G={...INIT_STATE}; saveG();
+  showScreen('opening');
+  const lore=document.getElementById('introLore');
+  const main=document.getElementById('introMain');
+  if(lore){ lore.style.display='flex'; lore.style.opacity='1'; lore.style.transition=''; }
+  if(main){ main.style.display='none'; }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// EFFECTS
+// ═══════════════════════════════════════════════════════════════════
+function spawnBloodDrop(){
+  if(!S.bloodDrops) return;
+  const d=document.createElement('div'); d.className='blood-drop';
+  const sz=Math.random()*4+2; const dur=Math.random()*5+4;
+  d.style.cssText=`left:${Math.random()*100}vw;top:-20px;width:${sz}px;height:${sz*2.2}px;animation-duration:${dur}s;opacity:${Math.random()*0.3+0.1}`;
+  document.body.appendChild(d); setTimeout(()=>d.remove(),(dur+0.1)*1000);
+}
+function spawnParticles(){
+  if(!S.particles) return;
+  for(let i=0;i<7;i++){
+    const p=document.createElement('div'); p.className='particle';
+    const sz=Math.random()*3.5+1.5; const ang=Math.random()*Math.PI*2;
+    const dist=Math.random()*65+25; const dur=Math.random()*0.7+0.45;
+    p.style.cssText=`left:${45+Math.random()*20}vw;top:${35+Math.random()*30}vh;width:${sz}px;height:${sz}px;animation-duration:${dur}s;background:rgba(${Math.random()>0.5?'175,135,55':'158,26,26'},0.72);--tx:${Math.cos(ang)*dist}px;--ty:${Math.sin(ang)*dist}px`;
+    document.body.appendChild(p); setTimeout(()=>p.remove(),(dur+0.1)*1000);
+  }
+}
+// Drops only on desktop
+setInterval(()=>{ if(window.innerWidth>600) spawnBloodDrop(); }, 2400);
+
+// ═══════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════
+document.getElementById('btnEndMenu').onclick=()=>{ renderArcMenu(); showScreen('arcMenu'); };
+
+applyTheme(); applyFont(); applyTextSize(); buildSettings(); updateKarmaUI(); updateFervorUI();
+
+// Block Android long-press context menu and text selection
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('selectstart', e => e.preventDefault());
+</script>
+</body>
+</html>
