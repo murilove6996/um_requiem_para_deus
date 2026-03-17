@@ -1,1 +1,1 @@
-This project is a i.a based game development, testing the game design ideas for future projects made by me.
+The project called "Um Réquiem Para Deus". is a project developed using artificial intelligence (all of them on the free mode).The project was major made on Claude Sonet (Sonet 4.6), but the general design, recomendations, coding tips, and essentially, i've passing the project on a lot of i.a's "hand" before i reach this final stage of development, but i yet don't considere it's the real final version of it. 
